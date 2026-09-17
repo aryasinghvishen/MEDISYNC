@@ -1,0 +1,3443 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      MEDISYNC — Regional Medicine Shortage Intelligence &amp; Intervention
+      System
+    </title>
+    <style>
+      :root {
+        --navy: #0b4f9c;
+        --blue: #1976d2;
+        --blue-light: #eaf4ff;
+        --blue-xlight: #f5faff;
+        --white: #ffffff;
+        --gray: #64748b;
+        --gray-light: #94a3b8;
+        --text: #0f172a;
+        --border: #e2e8f0;
+        --border-soft: #edf2f9;
+
+        --critical: #dc2626;
+        --critical-bg: #fdecec;
+        --high: #ea580c;
+        --high-bg: #fdeee4;
+        --medium: #d97706;
+        --medium-bg: #fef3dc;
+        --low: #16a34a;
+        --low-bg: #e8f7ee;
+        --surplus: #1976d2;
+        --surplus-bg: #eaf4ff;
+
+        --radius: 12px;
+        --radius-sm: 8px;
+        --shadow:
+          0 1px 2px rgba(15, 23, 42, 0.04),
+          0 4px 14px -6px rgba(15, 23, 42, 0.08);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        background: var(--blue-xlight);
+        color: var(--text);
+        font-family:
+          "Inter",
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      button {
+        font-family: inherit;
+        cursor: pointer;
+      }
+      input,
+      select {
+        font-family: inherit;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      ::selection {
+        background: var(--blue);
+        color: #fff;
+      }
+
+      /* ============ scrollbar (subtle) ============ */
+      ::-webkit-scrollbar {
+        width: 9px;
+        height: 9px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #c9d6ea;
+        border-radius: 20px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      /* ============================= LOGIN ============================= */
+      #loginScreen {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        display: flex;
+        background: var(--white);
+      }
+      .login-left {
+        flex: 1.1;
+        background: linear-gradient(160deg, var(--navy) 0%, #0d3c78 100%);
+        color: #fff;
+        padding: 64px 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+      }
+      .login-left::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.5;
+        background-image: radial-gradient(
+          rgba(255, 255, 255, 0.1) 1px,
+          transparent 1px
+        );
+        background-size: 26px 26px;
+      }
+      .login-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+      }
+      .brand-mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.14);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .login-brand .bn {
+        font-weight: 800;
+        font-size: 19px;
+        letter-spacing: 0.3px;
+      }
+      .login-mid {
+        position: relative;
+        max-width: 440px;
+      }
+      .login-mid h1 {
+        font-size: 32px;
+        line-height: 1.22;
+        margin: 0 0 14px;
+        font-weight: 700;
+      }
+      .login-mid p {
+        font-size: 14.5px;
+        line-height: 1.6;
+        color: #c6d6ef;
+        margin: 0;
+      }
+      .login-net {
+        position: relative;
+        margin-top: 36px;
+      }
+      .login-foot {
+        position: relative;
+        font-size: 12px;
+        color: #8faad6;
+      }
+
+      .login-right {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+      }
+      .login-card {
+        width: 100%;
+        max-width: 380px;
+      }
+      .login-card h2 {
+        font-size: 22px;
+        margin: 0 0 6px;
+      }
+      .login-card .sub {
+        font-size: 13.5px;
+        color: var(--gray);
+        margin-bottom: 28px;
+      }
+      .field {
+        margin-bottom: 16px;
+      }
+      .field label {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 6px;
+      }
+      .field input {
+        width: 100%;
+        padding: 11px 13px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 13.5px;
+        color: var(--text);
+        background: #fff;
+      }
+      .field input:focus {
+        outline: none;
+        border-color: var(--blue);
+        box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.12);
+      }
+      .remember-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 22px;
+        font-size: 12.5px;
+        color: var(--gray);
+      }
+      .btn {
+        border: none;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        font-size: 13.5px;
+        padding: 11px 16px;
+        transition:
+          background 0.15s ease,
+          opacity 0.15s ease;
+      }
+      .btn-primary {
+        background: var(--blue);
+        color: #fff;
+        width: 100%;
+      }
+      .btn-primary:hover {
+        background: #1565c0;
+      }
+      .btn-outline {
+        background: #fff;
+        color: var(--navy);
+        border: 1px solid var(--border);
+        width: 100%;
+        margin-top: 10px;
+      }
+      .btn-outline:hover {
+        background: var(--blue-light);
+      }
+      .login-demo-note {
+        font-size: 11.5px;
+        color: var(--gray-light);
+        text-align: center;
+        margin-top: 14px;
+      }
+
+      /* ============================= APP SHELL ============================= */
+      #app {
+        display: none;
+        min-height: 100vh;
+      }
+      #app.active {
+        display: flex;
+      }
+
+      .sidebar {
+        width: 236px;
+        flex-shrink: 0;
+        background: var(--navy);
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+      }
+      .sb-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 20px 20px 16px;
+      }
+      .sb-brand .bn {
+        font-weight: 800;
+        font-size: 16.5px;
+        letter-spacing: 0.3px;
+      }
+      .sb-nav {
+        flex: 1;
+        overflow-y: auto;
+        padding: 6px 10px;
+      }
+      .sb-section-label {
+        font-size: 10.5px;
+        font-weight: 700;
+        color: #8faad6;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        padding: 14px 10px 6px;
+      }
+      .sb-item {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 9px 11px;
+        border-radius: 8px;
+        font-size: 13.3px;
+        color: #d9e6f8;
+        margin-bottom: 2px;
+        transition:
+          background 0.12s ease,
+          color 0.12s ease;
+      }
+      .sb-item:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+      }
+      .sb-item.active {
+        background: rgba(255, 255, 255, 0.16);
+        color: #fff;
+        font-weight: 600;
+      }
+      .sb-item .ic {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        opacity: 0.9;
+      }
+      .sb-foot {
+        padding: 16px 18px;
+        border-top: 1px solid rgba(255, 255, 255, 0.14);
+        font-size: 12px;
+      }
+      .sb-foot .org {
+        font-weight: 700;
+        color: #fff;
+      }
+      .sb-foot .role {
+        color: #9fb6de;
+        margin-top: 1px;
+      }
+
+      .main {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 28px;
+        background: #fff;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 30;
+      }
+      .tb-left {
+        display: flex;
+        flex-direction: column;
+      }
+      .tb-title {
+        font-size: 16.5px;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .tb-right {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .tb-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12.5px;
+        color: var(--gray);
+        background: var(--blue-xlight);
+        border: 1px solid var(--border);
+        padding: 7px 12px;
+        border-radius: 999px;
+      }
+      .tb-select select {
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 8px 30px 8px 13px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--navy);
+        background: #fff;
+        appearance: none;
+        -webkit-appearance: none;
+      }
+      .tb-select {
+        position: relative;
+      }
+      .tb-select::after {
+        content: "⌄";
+        position: absolute;
+        right: 11px;
+        top: 50%;
+        transform: translateY(-53%);
+        font-size: 12px;
+        color: var(--gray);
+        pointer-events: none;
+      }
+      .tb-search {
+        position: relative;
+      }
+      .tb-search input {
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 8px 14px 8px 30px;
+        font-size: 12.5px;
+        width: 170px;
+        color: var(--text);
+      }
+      .tb-search input:focus {
+        outline: none;
+        border-color: var(--blue);
+      }
+      .tb-search svg {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 13px;
+        height: 13px;
+        color: var(--gray-light);
+      }
+      .icon-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      .icon-btn svg {
+        width: 15px;
+        height: 15px;
+        color: var(--gray);
+      }
+      .icon-btn .dot {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--critical);
+        border: 1.5px solid #fff;
+      }
+      .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--blue-light);
+        color: var(--navy);
+        font-weight: 700;
+        font-size: 12.5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .page {
+        padding: 26px 28px 60px;
+        max-width: 1440px;
+      }
+
+      /* ============================= SHARED COMPONENTS ============================= */
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+      .g6 {
+        grid-template-columns: repeat(6, 1fr);
+      }
+      .g4 {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      .g3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .g2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .g-2-1 {
+        grid-template-columns: 2fr 1fr;
+      }
+      .g-1-2 {
+        grid-template-columns: 1fr 2fr;
+      }
+
+      .card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 20px 22px;
+      }
+      .card-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+      }
+      .card-head h3 {
+        font-size: 15px;
+        margin: 0;
+        color: var(--text);
+      }
+      .card-head .hint {
+        font-size: 12px;
+        color: var(--gray);
+      }
+
+      .kpi {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 16px 18px;
+      }
+      .kpi .khead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+      .kpi .kicon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .kpi .kicon svg {
+        width: 15px;
+        height: 15px;
+      }
+      .kpi .kval {
+        font-size: 25px;
+        font-weight: 800;
+        color: var(--text);
+        line-height: 1;
+      }
+      .kpi .klabel {
+        font-size: 12px;
+        color: var(--gray);
+        margin-top: 6px;
+      }
+      .kpi .kchange {
+        font-size: 11px;
+        font-weight: 700;
+        margin-top: 6px;
+      }
+      .kpi .kchange.up {
+        color: var(--critical);
+      }
+      .kpi .kchange.down {
+        color: var(--low);
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+      .pill.critical {
+        background: var(--critical-bg);
+        color: var(--critical);
+      }
+      .pill.high {
+        background: var(--high-bg);
+        color: var(--high);
+      }
+      .pill.medium {
+        background: var(--medium-bg);
+        color: var(--medium);
+      }
+      .pill.low {
+        background: var(--low-bg);
+        color: var(--low);
+      }
+      .pill.surplus {
+        background: var(--surplus-bg);
+        color: var(--surplus);
+      }
+      .pill.neutral {
+        background: #f1f5f9;
+        color: var(--gray);
+      }
+
+      .btn-sm {
+        font-size: 12px;
+        padding: 7px 13px;
+        border-radius: 8px;
+        font-weight: 600;
+        border: 1px solid var(--border);
+        background: #fff;
+        color: var(--text);
+      }
+      .btn-sm.solid {
+        background: var(--blue);
+        color: #fff;
+        border-color: var(--blue);
+      }
+      .btn-sm.solid:hover {
+        background: #1565c0;
+      }
+      .btn-sm.ghost:hover {
+        background: var(--blue-light);
+      }
+      .btn-sm.danger {
+        background: #fff;
+        color: var(--critical);
+        border-color: #f3c7c4;
+      }
+      .btn-sm.danger:hover {
+        background: var(--critical-bg);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      thead th {
+        text-align: left;
+        font-size: 11px;
+        color: var(--gray);
+        font-weight: 700;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+        background: #fafcff;
+        white-space: nowrap;
+      }
+      tbody td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--border-soft);
+        vertical-align: middle;
+      }
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+      tbody tr.clickable:hover {
+        background: var(--blue-xlight);
+        cursor: pointer;
+      }
+      .cell-strong {
+        font-weight: 700;
+        color: var(--text);
+      }
+      .cell-sub {
+        font-size: 11px;
+        color: var(--gray);
+        margin-top: 1px;
+      }
+      .table-scroll {
+        overflow-x: auto;
+      }
+
+      .conf-bar {
+        width: 60px;
+        height: 6px;
+        border-radius: 4px;
+        background: #e7eef8;
+        overflow: hidden;
+        display: inline-block;
+        vertical-align: middle;
+        margin-right: 6px;
+      }
+      .conf-bar i {
+        display: block;
+        height: 100%;
+        background: var(--blue);
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 46px 20px;
+        color: var(--gray);
+      }
+      .empty-state svg {
+        width: 34px;
+        height: 34px;
+        color: var(--gray-light);
+        margin-bottom: 10px;
+      }
+      .empty-state .es-title {
+        font-weight: 700;
+        color: var(--text);
+        font-size: 14px;
+        margin-bottom: 4px;
+      }
+      .empty-state .es-sub {
+        font-size: 12.5px;
+      }
+
+      .drawer-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 20, 40, 0.35);
+        z-index: 100;
+        display: none;
+      }
+      .drawer-overlay.active {
+        display: block;
+      }
+      .drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100vh;
+        width: 420px;
+        max-width: 92vw;
+        background: #fff;
+        z-index: 101;
+        box-shadow: -14px 0 40px -18px rgba(15, 23, 42, 0.35);
+        transform: translateX(100%);
+        transition: transform 0.22s ease;
+        overflow-y: auto;
+      }
+      .drawer.active {
+        transform: translateX(0);
+      }
+      .drawer-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        padding: 22px 22px 14px;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 2;
+      }
+      .drawer-body {
+        padding: 20px 22px 40px;
+      }
+      .drawer-close {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+
+      .section-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+        margin: 20px 0 10px;
+      }
+      .kv-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border-soft);
+        font-size: 12.8px;
+      }
+      .kv-row .k {
+        color: var(--gray);
+      }
+      .kv-row .v {
+        font-weight: 600;
+        color: var(--text);
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(20px);
+        opacity: 0;
+        background: var(--navy);
+        color: #fff;
+        padding: 11px 20px;
+        border-radius: 999px;
+        font-size: 13px;
+        z-index: 300;
+        box-shadow: 0 10px 30px -10px rgba(11, 20, 40, 0.5);
+        transition:
+          opacity 0.2s ease,
+          transform 0.2s ease;
+        pointer-events: none;
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .factor-list {
+        margin: 0;
+        padding-left: 18px;
+        font-size: 12.5px;
+        color: var(--text);
+        line-height: 1.7;
+      }
+      .disclaimer {
+        background: var(--blue-xlight);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 12px;
+        color: var(--gray);
+        line-height: 1.6;
+      }
+
+      .map-legend {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        font-size: 12px;
+        color: var(--gray);
+        margin-top: 10px;
+      }
+      .map-legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .map-legend i {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .region-badge {
+        display: inline-block;
+        font-size: 10.5px;
+        font-weight: 700;
+        color: var(--navy);
+        background: var(--blue-light);
+        padding: 3px 8px;
+        border-radius: 6px;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 4px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 18px;
+      }
+      .tab {
+        padding: 9px 4px;
+        margin-right: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--gray);
+        border-bottom: 2px solid transparent;
+        cursor: pointer;
+      }
+      .tab.active {
+        color: var(--navy);
+        border-color: var(--blue);
+      }
+
+      .before-after {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        gap: 18px;
+        align-items: stretch;
+      }
+      .ba-box {
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px 20px;
+      }
+      .ba-box.before {
+        background: #fafafa;
+      }
+      .ba-box.after {
+        background: var(--low-bg);
+        border-color: #cfeeda;
+      }
+      .ba-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--gray);
+        margin-bottom: 10px;
+      }
+      .ba-arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--blue);
+      }
+      .ba-stat {
+        margin-bottom: 10px;
+      }
+      .ba-stat .l {
+        font-size: 11.5px;
+        color: var(--gray);
+      }
+      .ba-stat .v {
+        font-size: 19px;
+        font-weight: 800;
+        color: var(--text);
+      }
+
+      .settings-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+      .setting-row {
+        margin-bottom: 16px;
+      }
+      .setting-row label {
+        display: block;
+        font-size: 12.5px;
+        font-weight: 600;
+        margin-bottom: 6px;
+        color: var(--text);
+      }
+      .setting-row .desc {
+        font-size: 11.5px;
+        color: var(--gray);
+        margin-top: 4px;
+      }
+      .setting-row input[type="number"] {
+        width: 110px;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 13px;
+      }
+      .setting-row input[type="range"] {
+        width: 100%;
+      }
+
+      .help-block {
+        margin-bottom: 22px;
+      }
+      .help-block h4 {
+        font-size: 14px;
+        margin: 0 0 6px;
+        color: var(--navy);
+      }
+      .help-block p {
+        font-size: 13px;
+        color: var(--text);
+        line-height: 1.65;
+        margin: 0;
+      }
+
+      @media (max-width: 1180px) {
+        .g6 {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .g4 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .g-2-1,
+        .g-1-2 {
+          grid-template-columns: 1fr;
+        }
+        .settings-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 820px) {
+        .sidebar {
+          display: none;
+        }
+        .g3,
+        .g2 {
+          grid-template-columns: 1fr;
+        }
+        .before-after {
+          grid-template-columns: 1fr;
+        }
+        .ba-arrow {
+          transform: rotate(90deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============================= LOGIN ============================= -->
+    <div id="loginScreen">
+      <div class="login-left">
+        <div class="login-brand">
+          <div class="brand-mark">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 3v18M3 12h18"
+                stroke="#fff"
+                stroke-width="2.6"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <div class="bn">MEDISYNC</div>
+        </div>
+        <div class="login-mid">
+          <h1>See a shortage before it reaches the shelf.</h1>
+          <p>
+            MEDISYNC watches stock, consumption and replenishment across every
+            facility in a region — forecasting stockouts, tracing how they
+            spread, and recommending redistribution before patients are
+            affected.
+          </p>
+          <div class="login-net">
+            <svg
+              id="loginNetSvg"
+              viewBox="0 0 440 160"
+              width="100%"
+              height="160"
+            ></svg>
+          </div>
+        </div>
+        <div class="login-foot">
+          Regional Medicine Shortage Intelligence &amp; Intervention System
+        </div>
+      </div>
+      <div class="login-right">
+        <div class="login-card">
+          <h2>Sign in</h2>
+          <div class="sub">Access your regional operations workspace.</div>
+          <div class="field">
+            <label>Email</label
+            ><input
+              type="email"
+              placeholder="you@health-authority.gov"
+              value="analyst@medisync.demo"
+            />
+          </div>
+          <div class="field">
+            <label>Password</label
+            ><input type="password" placeholder="••••••••" value="demo1234" />
+          </div>
+          <div class="remember-row">
+            <label
+              ><input
+                type="checkbox"
+                checked
+                style="margin-right: 6px"
+              />Remember me</label
+            ><span style="color: var(--blue); font-weight: 600"
+              >Forgot password?</span
+            >
+          </div>
+          <button class="btn btn-primary" id="signInBtn">Sign in</button>
+          <button class="btn btn-outline" id="demoBtn">Use Demo Account</button>
+          <div class="login-demo-note">
+            Demo credentials are pre-filled. Either button opens the same seeded
+            regional dataset.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================= APP SHELL ============================= -->
+    <div id="app">
+      <aside class="sidebar">
+        <div class="sb-brand">
+          <div class="brand-mark" style="width: 30px; height: 30px">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M12 3v18M3 12h18"
+                stroke="#fff"
+                stroke-width="2.8"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <div class="bn">MEDISYNC</div>
+        </div>
+        <nav class="sb-nav" id="sbNav"></nav>
+        <div class="sb-foot">
+          <div class="org">Regional Health Authority</div>
+          <div class="role">Operations Analyst · Demo Account</div>
+        </div>
+      </aside>
+
+      <div class="main">
+        <div class="topbar">
+          <div class="tb-left">
+            <div class="tb-title" id="tbTitle">Overview</div>
+          </div>
+          <div class="tb-right">
+            <div class="tb-select"><select id="regionSelect"></select></div>
+            <div class="tb-select"><select id="medicineSelect"></select></div>
+            <div class="tb-search">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="7"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+                <path
+                  d="M21 21l-4-4"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <input
+                id="globalSearch"
+                placeholder="Search facility or medicine"
+              />
+            </div>
+            <div class="tb-chip" id="lastUpdatedChip"></div>
+            <button class="icon-btn" id="refreshBtn" title="Refresh data">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M21 12a9 9 0 1 1-2.64-6.36"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M21 4v6h-6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <button class="icon-btn" title="Notifications">
+              <span class="dot"></span>
+              <svg viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <div class="avatar">OA</div>
+          </div>
+        </div>
+        <div class="page" id="pageContent"></div>
+      </div>
+    </div>
+
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <div class="drawer" id="drawer"><div id="drawerInner"></div></div>
+    <div class="toast" id="toast"></div>
+
+    <script>
+      /* ======================================================================
+   MEDISYNC — DATA LAYER
+   ====================================================================== */
+      function mulberry32(seed) {
+        return function () {
+          seed |= 0;
+          seed = (seed + 0x6d2b79f5) | 0;
+          let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+
+      const TODAY = new Date(2026, 8, 17, 1, 40); // 17 Sep 2026, 01:40
+
+      const DISTRICTS = [
+        { id: "central", name: "Chennai Central", lat: 13.0827, lng: 80.2707 },
+        { id: "north", name: "Chennai North", lat: 13.15, lng: 80.24 },
+        { id: "south", name: "Chennai South", lat: 12.95, lng: 80.22 },
+        { id: "tambaram", name: "Tambaram", lat: 12.925, lng: 80.1 },
+        { id: "sriperumbudur", name: "Sriperumbudur", lat: 12.97, lng: 79.945 },
+        { id: "kanchipuram", name: "Kanchipuram", lat: 12.8342, lng: 79.7036 },
+      ];
+
+      const KIND_LABEL = {
+        hospital: "Hospital",
+        phc: "Primary Health Centre",
+        clinic: "Clinic",
+        depot: "Supply Depot",
+      };
+      const KIND_PARAMS = {
+        hospital: { consumption: [8, 20], stockDaysRange: [9, 34] },
+        depot: { consumption: [3, 7], stockDaysRange: [24, 68] },
+        phc: { consumption: [3, 7], stockDaysRange: [6, 26] },
+        clinic: { consumption: [2, 5], stockDaysRange: [7, 22] },
+      };
+      const KIND_SEQUENCE = ["hospital", "depot", "phc", "phc", "clinic"];
+
+      const MEDICINES = [
+        {
+          id: "amox",
+          name: "Amoxicillin 500mg",
+          category: "Antibiotic",
+          unit: "capsules",
+          criticality: "medium",
+          safetyDays: 5,
+          demand: 1.4,
+        },
+        {
+          id: "oxy",
+          name: "Oxytocin Injection",
+          category: "Maternal Care",
+          unit: "ampoules",
+          criticality: "high",
+          safetyDays: 7,
+          demand: 0.5,
+        },
+        {
+          id: "ors",
+          name: "ORS Rehydration Sachets",
+          category: "General",
+          unit: "sachets",
+          criticality: "medium",
+          safetyDays: 5,
+          demand: 1.6,
+        },
+        {
+          id: "ins",
+          name: "Insulin (Regular)",
+          category: "Chronic Care",
+          unit: "vials",
+          criticality: "high",
+          safetyDays: 7,
+          demand: 0.6,
+        },
+        {
+          id: "ceft",
+          name: "Ceftriaxone 1g",
+          category: "Antibiotic",
+          unit: "vials",
+          criticality: "high",
+          safetyDays: 6,
+          demand: 0.5,
+        },
+        {
+          id: "para",
+          name: "Paracetamol 500mg",
+          category: "Analgesic",
+          unit: "tablets",
+          criticality: "low",
+          safetyDays: 3,
+          demand: 2.0,
+        },
+        {
+          id: "metf",
+          name: "Metformin 500mg",
+          category: "Chronic Care",
+          unit: "tablets",
+          criticality: "medium",
+          safetyDays: 5,
+          demand: 1.3,
+        },
+        {
+          id: "ivrl",
+          name: "IV Fluids (Ringer Lactate)",
+          category: "General",
+          unit: "bottles",
+          criticality: "medium",
+          safetyDays: 5,
+          demand: 0.9,
+        },
+        {
+          id: "azith",
+          name: "Azithromycin 250mg",
+          category: "Antibiotic",
+          unit: "tablets",
+          criticality: "low",
+          safetyDays: 3,
+          demand: 1.1,
+        },
+        {
+          id: "diaz",
+          name: "Diazepam Injection",
+          category: "Emergency Care",
+          unit: "ampoules",
+          criticality: "high",
+          safetyDays: 6,
+          demand: 0.4,
+        },
+        {
+          id: "tt",
+          name: "Tetanus Toxoid",
+          category: "Immunization",
+          unit: "vials",
+          criticality: "medium",
+          safetyDays: 5,
+          demand: 0.5,
+        },
+        {
+          id: "ifa",
+          name: "Iron-Folic Acid Tablets",
+          category: "General",
+          unit: "tablets",
+          criticality: "low",
+          safetyDays: 3,
+          demand: 1.7,
+        },
+      ];
+
+      /* Hand-set narrative overrides — a spreading Amoxicillin shortage in Tambaram,
+   with a nearby depot holding usable surplus. Everything else is procedurally seeded. */
+      const OVERRIDES = {
+        "tambaram-2|amox": { stock: 34, base: 14.0, accel: 0.28, lead: 6 }, // PHC, critical
+        "tambaram-4|amox": { stock: 24, base: 13.6, accel: 0.34, lead: 6 }, // clinic, critical
+        "tambaram-3|amox": { stock: 48, base: 13.4, accel: 0.18, lead: 6 }, // phc, high
+        "tambaram-0|amox": { stock: 2500, base: 7.0, accel: -0.05, lead: 8 }, // hospital, healthy but not the donor
+        "tambaram-1|amox": { stock: 3100, base: 6.0, accel: -0.08, lead: 5 }, // depot, surplus donor
+        "north-0|ins": { stock: 42, base: 16.0, accel: 0.22, lead: 9 },
+        "south-3|ins": { stock: 96, base: 9.5, accel: 0.02, lead: 9 },
+        "central-1|ceft": { stock: 2800, base: 5.0, accel: -0.04, lead: 7 },
+      };
+
+      let FACILITIES = [];
+      let rngSeed = 4021;
+      DISTRICTS.forEach((d, di) => {
+        KIND_SEQUENCE.forEach((kind, fi) => {
+          const rand = mulberry32(rngSeed++ + di * 131 + fi * 17);
+          const id = d.id + "-" + fi;
+          const angle = rand() * Math.PI * 2;
+          const dist = 0.035 + rand() * 0.05;
+          const fac = {
+            id,
+            name: facilityName(d, kind, fi),
+            kind,
+            district: d.id,
+            districtName: d.name,
+            lat: d.lat + Math.cos(angle) * dist,
+            lng: d.lng + Math.sin(angle) * dist,
+            capacity:
+              kind === "hospital"
+                ? 260 + Math.round(rand() * 140)
+                : kind === "depot"
+                  ? 500 + Math.round(rand() * 300)
+                  : 60 + Math.round(rand() * 80),
+            lastUpdate: new Date(
+              TODAY.getTime() -
+                Math.round(rand() * 5) * 3600 * 1000 -
+                Math.round(rand() * 40) * 60000,
+            ),
+            med: {},
+          };
+          FACILITIES.push(fac);
+        });
+      });
+
+      function facilityName(d, kind, fi) {
+        const bases = {
+          hospital: [d.name + " District Hospital"],
+          depot: [d.name + " Regional Supply Depot"],
+          phc: [
+            "Government PHC – " + d.name,
+            "Primary Health Centre, " + d.name,
+          ],
+          clinic: [d.name + " Community Clinic", d.name + " Urban Health Post"],
+        };
+        const list = bases[kind];
+        return list[fi % list.length];
+      }
+
+      FACILITIES.forEach((fac, fidx) => {
+        const params = KIND_PARAMS[fac.kind];
+        MEDICINES.forEach((med, midx) => {
+          const rand = mulberry32(1000 + fidx * 97 + midx * 31);
+          const key = fac.id + "|" + med.id;
+          const ov = OVERRIDES[key];
+
+          let baseConsumption = ov
+            ? ov.base
+            : +(
+                (params.consumption[0] +
+                  rand() * (params.consumption[1] - params.consumption[0])) *
+                med.demand
+              ).toFixed(1);
+          let accel = ov ? ov.accel : +((rand() - 0.55) * 0.22).toFixed(2); // mostly small, slightly negative-skewed
+          let recentConsumption = +(baseConsumption * (1 + accel)).toFixed(2);
+          let stockDays =
+            params.stockDaysRange[0] +
+            rand() * (params.stockDaysRange[1] - params.stockDaysRange[0]);
+          let stock = ov ? ov.stock : Math.round(recentConsumption * stockDays);
+          let leadTime = ov ? ov.lead : Math.round(5 + rand() * 9);
+          let delayed = !ov && rand() < 0.16;
+          let incomingQty = Math.round(recentConsumption * (4 + rand() * 6));
+          let incomingEta =
+            leadTime + (delayed ? Math.round(2 + rand() * 3) : 0);
+          let volatility = Math.min(1, Math.abs(accel) * 2.2 + rand() * 0.18);
+
+          fac.med[med.id] = {
+            stock,
+            baseConsumption,
+            recentConsumption,
+            accel,
+            leadTime,
+            incoming: { qty: incomingQty, etaDays: incomingEta, delayed },
+            volatility,
+          };
+        });
+      });
+
+      function haversineKm(a, b) {
+        const R = 6371;
+        const dLat = ((b.lat - a.lat) * Math.PI) / 180,
+          dLng = ((b.lng - a.lng) * Math.PI) / 180;
+        const la1 = (a.lat * Math.PI) / 180,
+          la2 = (b.lat * Math.PI) / 180;
+        const x =
+          Math.sin(dLat / 2) ** 2 +
+          Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+        return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+      }
+
+      /* ======================================================================
+   CONFIG / SETTINGS (editable at runtime)
+   ====================================================================== */
+      const SETTINGS = {
+        criticalDays: 2,
+        highDays: 5,
+        mediumDays: 10,
+        forecastHorizon: 30,
+        transportRadiusKm: 100,
+        safetyMultiplier: 1.0,
+      };
+
+      /* ======================================================================
+   INTELLIGENCE LAYER
+   ====================================================================== */
+
+      /* ---- FORECAST ENGINE + RISK ENGINE ---- */
+      function statusFromDays(days) {
+        if (days <= SETTINGS.criticalDays) return "critical";
+        if (days <= SETTINGS.highDays) return "high";
+        if (days <= SETTINGS.mediumDays) return "medium";
+        return "low";
+      }
+      function statusColor(s) {
+        return s === "critical"
+          ? "var(--critical)"
+          : s === "high"
+            ? "var(--high)"
+            : s === "medium"
+              ? "var(--medium)"
+              : "var(--low)";
+      }
+      function statusLabel(s) {
+        return s === "critical"
+          ? "Critical"
+          : s === "high"
+            ? "High Risk"
+            : s === "medium"
+              ? "Medium Risk"
+              : "Healthy";
+      }
+      function fmtDate(d) {
+        return d.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+      }
+      function stockoutDate(daysFromNow) {
+        const d = new Date(TODAY.getTime() + daysFromNow * 86400000);
+        return d;
+      }
+      function fmtNum(n, dec) {
+        if (dec === undefined) dec = n >= 100 ? 0 : 1;
+        return Number(n).toLocaleString(undefined, {
+          maximumFractionDigits: dec,
+        });
+      }
+
+      function confidenceFor(volatility, delayed) {
+        let pct = 96 - volatility * 38 - (delayed ? 6 : 0);
+        pct = Math.max(58, Math.min(97, Math.round(pct)));
+        let label =
+          pct >= 85
+            ? "High confidence"
+            : pct >= 70
+              ? "Moderate confidence"
+              : "Low confidence — demand volatility is high";
+        return { pct, label };
+      }
+
+      function riskReason(rec) {
+        if (rec.accel > 0.18)
+          return `Stock declining ${Math.round(rec.accel * 100)}% faster than the 14-day average.`;
+        if (rec.incoming.delayed)
+          return `Incoming shipment delayed by ~${rec.incoming.etaDays - rec.leadTime} days.`;
+        if (rec.leadTime > rec.daysToStockout)
+          return `Resupply lead time (${rec.leadTime}d) exceeds projected days of stock.`;
+        if (rec.status === "low")
+          return `Stock comfortably ahead of consumption and lead time.`;
+        return `Consumption trending steady against available stock.`;
+      }
+
+      function buildRecord(fac, med) {
+        const m = fac.med[med.id];
+        const daysToStockout = +(m.stock / m.recentConsumption).toFixed(1);
+        const status = statusFromDays(daysToStockout);
+        const safetyStock =
+          med.safetyDays * SETTINGS.safetyMultiplier * m.recentConsumption;
+        const surplus = m.stock - safetyStock;
+        const transferable =
+          status === "low" && surplus > 0 ? Math.floor(surplus) : 0;
+        const conf = confidenceFor(m.volatility, m.incoming.delayed);
+        const forecast = [];
+        for (let d = 0; d <= SETTINGS.forecastHorizon; d++) {
+          let v = m.stock - m.recentConsumption * d;
+          if (d >= m.incoming.etaDays) v += m.incoming.qty;
+          forecast.push(Math.max(0, +v.toFixed(1)));
+        }
+        const rec = {
+          facilityId: fac.id,
+          facility: fac,
+          medicineId: med.id,
+          medicine: med,
+          stock: m.stock,
+          baseConsumption: m.baseConsumption,
+          recentConsumption: m.recentConsumption,
+          accel: m.accel,
+          leadTime: m.leadTime,
+          incoming: m.incoming,
+          volatility: m.volatility,
+          daysToStockout,
+          status,
+          stockoutDate: stockoutDate(daysToStockout),
+          confidence: conf.pct,
+          confidenceLabel: conf.label,
+          safetyStock: Math.round(safetyStock),
+          surplus: Math.round(surplus),
+          transferable,
+          forecast,
+        };
+        rec.reason = riskReason(rec);
+        return rec;
+      }
+
+      let DERIVED = [];
+      function recompute() {
+        DERIVED = [];
+        FACILITIES.forEach((fac) => {
+          MEDICINES.forEach((med) => {
+            DERIVED.push(buildRecord(fac, med));
+          });
+        });
+      }
+      recompute();
+
+      function recordsFor(regionId, medicineId) {
+        return DERIVED.filter(
+          (r) =>
+            (regionId === "all" || r.facility.district === regionId) &&
+            (medicineId === "all" || r.medicineId === medicineId),
+        );
+      }
+      function recordOf(facilityId, medicineId) {
+        return DERIVED.find(
+          (r) => r.facilityId === facilityId && r.medicineId === medicineId,
+        );
+      }
+      function facilityRecords(facilityId) {
+        return DERIVED.filter((r) => r.facilityId === facilityId);
+      }
+      function worstStatus(facilityId) {
+        const order = { critical: 3, high: 2, medium: 1, low: 0 };
+        return facilityRecords(facilityId).reduce(
+          (w, r) => (order[r.status] > order[w] ? r.status : w),
+          "low",
+        );
+      }
+
+      /* ---- PROPAGATION ENGINE ---- */
+      function computeClusters() {
+        const clusters = [];
+        MEDICINES.forEach((med) => {
+          DISTRICTS.forEach((d) => {
+            const affected = DERIVED.filter(
+              (r) =>
+                r.medicineId === med.id &&
+                r.facility.district === d.id &&
+                (r.status === "critical" || r.status === "high"),
+            );
+            if (affected.length >= 2) {
+              const facs = affected.map((r) => r.facility);
+              let maxDist = 0;
+              for (let i = 0; i < facs.length; i++)
+                for (let j = i + 1; j < facs.length; j++)
+                  maxDist = Math.max(maxDist, haversineKm(facs[i], facs[j]));
+              const avgDecline =
+                affected.reduce((s, r) => s + Math.max(0, r.accel), 0) /
+                affected.length;
+              const confidence = Math.min(
+                94,
+                58 + affected.length * 9 + Math.round(avgDecline * 40),
+              );
+              clusters.push({
+                medicine: med,
+                district: d,
+                affected,
+                count: affected.length,
+                avgDeclinePct: Math.round(avgDecline * 100),
+                radiusKm: +maxDist.toFixed(1),
+                confidence,
+                status: "Potential regional shortage cluster",
+              });
+            } else if (affected.length === 1) {
+              clusters.push({
+                medicine: med,
+                district: d,
+                affected,
+                count: 1,
+                avgDeclinePct: Math.round(Math.max(0, affected[0].accel) * 100),
+                radiusKm: 0,
+                confidence: 62,
+                status: "Likely isolated shortage",
+              });
+            }
+          });
+        });
+        return clusters.sort(
+          (a, b) => b.count - a.count || b.confidence - a.confidence,
+        );
+      }
+
+      /* ---- RECOMMENDATION ENGINE ---- */
+      function findDonors(recipientRec) {
+        return DERIVED.filter(
+          (r) =>
+            r.medicineId === recipientRec.medicineId &&
+            r.facilityId !== recipientRec.facilityId &&
+            r.transferable > 0,
+        )
+          .map((donor) => ({
+            donor,
+            distanceKm: haversineKm(recipientRec.facility, donor.facility),
+          }))
+          .sort((a, b) => a.distanceKm - b.distanceKm);
+      }
+
+      function scoreIntervention(recipientRec, donorRec, distanceKm) {
+        const urgencyW = Math.max(
+          0,
+          Math.min(40, (SETTINGS.mediumDays - recipientRec.daysToStockout) * 4),
+        );
+        const surplusW = Math.max(0, Math.min(25, donorRec.transferable / 60));
+        const distanceW = Math.max(
+          0,
+          Math.min(
+            20,
+            ((SETTINGS.transportRadiusKm - distanceKm) /
+              SETTINGS.transportRadiusKm) *
+              20,
+          ),
+        );
+        const critW =
+          recipientRec.medicine.criticality === "high"
+            ? 15
+            : recipientRec.medicine.criticality === "medium"
+              ? 9
+              : 4;
+        return Math.round(urgencyW + surplusW + distanceW + critW);
+      }
+
+      const COMFORT_DAYS = 15;
+      function recommendedQty(recipientRec, donorTransferable) {
+        const need = Math.ceil(
+          recipientRec.recentConsumption * COMFORT_DAYS - recipientRec.stock,
+        );
+        return Math.max(0, Math.min(donorTransferable, need));
+      }
+
+      function computeRecommendations() {
+        const atRisk = DERIVED.filter(
+          (r) => r.status === "critical" || r.status === "high",
+        );
+        const recs = [];
+        atRisk.forEach((recipientRec) => {
+          const candidates = findDonors(recipientRec).filter(
+            (c) => c.distanceKm <= SETTINGS.transportRadiusKm,
+          );
+          if (candidates.length === 0) {
+            recs.push({
+              type: "procurement",
+              recipientRec,
+              priority: recipientRec.status === "critical" ? "HIGH" : "MEDIUM",
+            });
+            return;
+          }
+          let best = null,
+            bestScore = -1;
+          candidates.forEach((c) => {
+            const score = scoreIntervention(
+              recipientRec,
+              c.donor,
+              c.distanceKm,
+            );
+            if (score > bestScore) {
+              bestScore = score;
+              best = c;
+            }
+          });
+          const qty = recommendedQty(recipientRec, best.donor.transferable);
+          const hours = +(best.distanceKm / 40 + 0.25).toFixed(1);
+          recs.push({
+            type: "redistribution",
+            recipientRec,
+            donorRec: best.donor,
+            distanceKm: +best.distanceKm.toFixed(1),
+            transportHours: hours,
+            quantity: qty,
+            score: bestScore,
+            priority: recipientRec.status === "critical" ? "HIGH" : "MEDIUM",
+          });
+        });
+        return recs.sort((a, b) => (b.score || 60) - (a.score || 60));
+      }
+
+      /* ---- ALERTS ENGINE ---- */
+      function computeAlerts() {
+        const alerts = [];
+        const clusters = computeClusters().filter((c) => c.count >= 2);
+        DERIVED.forEach((r) => {
+          const hoursAgo =
+            Math.round(
+              (r.facilityId.charCodeAt(r.facilityId.length - 1) +
+                r.medicineId.length * 7) %
+                14,
+            ) + 1;
+          const ts = new Date(TODAY.getTime() - hoursAgo * 3600 * 1000);
+          if (r.status === "critical") {
+            alerts.push({
+              type: "CRITICAL STOCKOUT",
+              severity: "critical",
+              ts,
+              facility: r.facility,
+              medicine: r.medicine,
+              message: `Projected stockout in ${r.daysToStockout}d.`,
+              confidence: r.confidence,
+              factors: [
+                r.reason,
+                `Lead time ${r.leadTime}d`,
+                r.incoming.delayed
+                  ? "Shipment delayed"
+                  : "Shipment on schedule",
+              ],
+              action:
+                r.transferable > 0
+                  ? "Review redistribution options"
+                  : "Escalate for emergency procurement",
+            });
+          }
+          if (r.accel > 0.22) {
+            alerts.push({
+              type: "HIGH CONSUMPTION",
+              severity: "high",
+              ts,
+              facility: r.facility,
+              medicine: r.medicine,
+              message: `Demand ${Math.round(r.accel * 100)}% above the 14-day baseline.`,
+              confidence: r.confidence,
+              factors: [
+                `Recent: ${fmtNum(r.recentConsumption)}/day`,
+                `Baseline: ${fmtNum(r.baseConsumption)}/day`,
+              ],
+              action: "Monitor for demand acceleration",
+            });
+          }
+          if (r.incoming.delayed) {
+            alerts.push({
+              type: "REPLENISHMENT DELAY",
+              severity: "medium",
+              ts,
+              facility: r.facility,
+              medicine: r.medicine,
+              message: `Incoming shipment delayed to day ${r.incoming.etaDays} (lead time ${r.leadTime}d).`,
+              confidence: 88,
+              factors: ["Shipment tracking flagged delay"],
+              action: "Confirm revised ETA with supplier",
+            });
+          }
+          if (r.status === "low" && r.transferable > 300) {
+            alerts.push({
+              type: "SURPLUS OPPORTUNITY",
+              severity: "low",
+              ts,
+              facility: r.facility,
+              medicine: r.medicine,
+              message: `${fmtNum(r.transferable, 0)} ${r.medicine.unit} transferable above safety stock.`,
+              confidence: 90,
+              factors: [
+                `Safety stock: ${fmtNum(r.safetyStock, 0)}`,
+                `On hand: ${fmtNum(r.stock, 0)}`,
+              ],
+              action: "Available for regional redistribution",
+            });
+          }
+        });
+        clusters.forEach((c) => {
+          const ts = new Date(TODAY.getTime() - (2 + c.count) * 3600 * 1000);
+          alerts.push({
+            type: "PROPAGATION DETECTED",
+            severity: "critical",
+            ts,
+            facility: null,
+            medicine: c.medicine,
+            message: `${c.count} facilities in ${c.district.name} show ${c.medicine.name} declining together.`,
+            confidence: c.confidence,
+            factors: [
+              `Average decline ${c.avgDeclinePct}%`,
+              `Geographic radius ${c.radiusKm}km`,
+            ],
+            action: "Open Shortage Propagation for cluster detail",
+            district: c.district,
+          });
+        });
+        computeRecommendations()
+          .filter((r) => r.type === "procurement")
+          .forEach((r) => {
+            alerts.push({
+              type: "PROCUREMENT REQUIRED",
+              severity: "high",
+              ts: new Date(TODAY.getTime() - 3600 * 1000),
+              facility: r.recipientRec.facility,
+              medicine: r.recipientRec.medicine,
+              message:
+                "No feasible in-region donor within the configured transport radius.",
+              confidence: r.recipientRec.confidence,
+              factors: ["No donor with transferable surplus in range"],
+              action: "Recommended: emergency procurement",
+            });
+          });
+        return alerts.sort((a, b) => b.ts - a.ts);
+      }
+
+      /* ======================================================================
+   UI STATE
+   ====================================================================== */
+      const STATE = {
+        region: "all",
+        medicine: "all",
+        search: "",
+        selectedFacilityId: null,
+        selectedMedicineId: MEDICINES[0].id,
+        page: "overview",
+        interventionStatus: {}, // key: recipientFacilityId|medicineId -> "approved"|"rejected"
+        sim: {
+          medicineId: MEDICINES[0].id,
+          donorId: null,
+          recipientId: null,
+          qty: null,
+        },
+      };
+
+      const ICON = {
+        grid: `<path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>`,
+        pin: `<path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="9" r="2.4" stroke="currentColor" stroke-width="1.8"/>`,
+        list: `<path d="M8 6h12M8 12h12M8 18h12M3.5 6h.01M3.5 12h.01M3.5 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`,
+        trend: `<path d="M4 17l5-5 4 4 7-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 8h5v5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+        share: `<circle cx="6" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="6" r="2.6" stroke="currentColor" stroke-width="1.8"/><circle cx="18" cy="18" r="2.6" stroke="currentColor" stroke-width="1.8"/><path d="M8.3 10.7L15.7 7.2M8.3 13.3l7.4 3.5" stroke="currentColor" stroke-width="1.8"/>`,
+        exchange: `<path d="M4 8h13M13 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 16H7M11 12l-4 4 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>`,
+        sliders: `<path d="M5 21V13M5 9V3M12 21v-4M12 13V3M19 21v-8M19 9V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="5" cy="11" r="2" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="15" r="2" stroke="currentColor" stroke-width="1.8"/><circle cx="19" cy="11" r="2" stroke="currentColor" stroke-width="1.8"/>`,
+        building: `<rect x="5" y="3" width="14" height="18" rx="1" stroke="currentColor" stroke-width="1.8"/><path d="M9 8h1M14 8h1M9 12h1M14 12h1M9 16h1M14 16h1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>`,
+        capsule: `<rect x="3" y="9" width="18" height="6" rx="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 9v6" stroke="currentColor" stroke-width="1.8"/>`,
+        bell: `<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 21a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>`,
+        bar: `<path d="M5 21V10M12 21V5M19 21v-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>`,
+        gear: `<circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.9 2.9l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6V21a2 2 0 1 1-4 0v-.2a1.7 1.7 0 0 0-1.1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.9-2.9l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.6-1H3a2 2 0 1 1 0-4h.2a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.9-2.9l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.6V3a2 2 0 1 1 4 0v.2a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.9 2.9l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.6 1H21a2 2 0 1 1 0 4h-.2a1.7 1.7 0 0 0-1.6 1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>`,
+        help: `<circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9a2.5 2.5 0 1 1 3.7 2.2c-.9.5-1.2 1-1.2 1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="currentColor"/>`,
+        refresh: `<path d="M21 12a9 9 0 1 1-2.64-6.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>`,
+        alert: `<path d="M12 9v4M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10.3 3.9L2.5 18a1.8 1.8 0 0 0 1.6 2.6h15.8a1.8 1.8 0 0 0 1.6-2.6L13.7 3.9a1.8 1.8 0 0 0-3.4 0z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>`,
+        box: `<path d="M21 8l-9-5-9 5 9 5 9-5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 8v8l9 5 9-5V8M12 13v8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>`,
+      };
+      function svgIcon(name, size) {
+        size = size || 16;
+        return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none">${ICON[name]}</svg>`;
+      }
+
+      const NAV = [
+        {
+          section: "Intelligence",
+          items: [
+            { key: "overview", label: "Overview", icon: "grid" },
+            { key: "riskmap", label: "Regional Risk", icon: "pin" },
+            { key: "inventory", label: "Inventory", icon: "list" },
+            { key: "forecasts", label: "Forecasts", icon: "trend" },
+            { key: "propagation", label: "Propagation", icon: "share" },
+          ],
+        },
+        {
+          section: "Action",
+          items: [
+            { key: "interventions", label: "Interventions", icon: "exchange" },
+            { key: "simulator", label: "Simulator", icon: "sliders" },
+          ],
+        },
+        {
+          section: "Network",
+          items: [
+            { key: "facilities", label: "Facilities", icon: "building" },
+            { key: "medicines", label: "Medicines", icon: "capsule" },
+            { key: "alerts", label: "Alerts", icon: "bell" },
+            { key: "analytics", label: "Analytics", icon: "bar" },
+          ],
+        },
+        {
+          section: "",
+          items: [
+            { key: "settings", label: "Settings", icon: "gear" },
+            { key: "help", label: "Help", icon: "help" },
+          ],
+        },
+      ];
+      const PAGE_TITLES = Object.fromEntries(
+        NAV.flatMap((s) => s.items).map((i) => [i.key, i.label]),
+      );
+      PAGE_TITLES.overview = "Regional Medicine Intelligence";
+
+      function renderSidebar() {
+        document.getElementById("sbNav").innerHTML = NAV.map(
+          (sec) => `
+    ${sec.section ? `<div class="sb-section-label">${sec.section}</div>` : ""}
+    ${sec.items
+      .map(
+        (it) => `
+      <div class="sb-item ${STATE.page === it.key ? "active" : ""}" data-nav="${it.key}">
+        <span class="ic">${svgIcon(it.icon, 16)}</span><span>${it.label}</span>
+      </div>`,
+      )
+      .join("")}
+  `,
+        ).join("");
+        document.querySelectorAll("[data-nav]").forEach((el) => {
+          el.onclick = () => navigate(el.dataset.nav);
+        });
+      }
+
+      function navigate(page) {
+        STATE.page = page;
+        document.getElementById("tbTitle").textContent =
+          PAGE_TITLES[page] || page;
+        renderSidebar();
+        renderPage();
+        document
+          .getElementById("pageContent")
+          .scrollIntoView({ behavior: "instant", block: "start" });
+      }
+
+      function toast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        clearTimeout(window.__toastT);
+        window.__toastT = setTimeout(() => t.classList.remove("show"), 2600);
+      }
+
+      /* ======================================================================
+   TOP CONTROLS
+   ====================================================================== */
+      function renderTopControls() {
+        const regSel = document.getElementById("regionSelect");
+        regSel.innerHTML =
+          `<option value="all">All regions</option>` +
+          DISTRICTS.map(
+            (d) => `<option value="${d.id}">${d.name}</option>`,
+          ).join("");
+        regSel.value = STATE.region;
+        regSel.onchange = () => {
+          STATE.region = regSel.value;
+          renderPage();
+        };
+
+        const medSel = document.getElementById("medicineSelect");
+        medSel.innerHTML =
+          `<option value="all">All medicines</option>` +
+          MEDICINES.map(
+            (m) => `<option value="${m.id}">${m.name}</option>`,
+          ).join("");
+        medSel.value = STATE.medicine;
+        medSel.onchange = () => {
+          STATE.medicine = medSel.value;
+          renderPage();
+        };
+
+        document.getElementById("lastUpdatedChip").innerHTML =
+          `${svgIcon("box", 13)} Last updated: <span id="luTime">${fmtDate(TODAY)}, 01:40 IST</span>`;
+        document.getElementById("refreshBtn").onclick = () => {
+          document.getElementById("luTime").textContent =
+            fmtDate(new Date()) +
+            ", " +
+            new Date().toLocaleTimeString("en-GB", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+          toast("Demo data refreshed — simulated dataset, not a live feed.");
+        };
+        document.getElementById("globalSearch").oninput = (e) => {
+          STATE.search = e.target.value.toLowerCase();
+          if (["inventory", "facilities", "medicines"].includes(STATE.page))
+            renderPage();
+        };
+      }
+
+      function renderPage() {
+        const map = {
+          overview: renderOverview,
+          riskmap: renderRiskMap,
+          inventory: renderInventory,
+          forecasts: renderForecasts,
+          propagation: renderPropagation,
+          interventions: renderInterventions,
+          simulator: renderSimulator,
+          facilities: renderFacilities,
+          medicines: renderMedicines,
+          alerts: renderAlerts,
+          analytics: renderAnalytics,
+          settings: renderSettings,
+          help: renderHelp,
+        };
+        (map[STATE.page] || renderOverview)();
+      }
+
+      /* ======================================================================
+   SHARED COMPONENTS
+   ====================================================================== */
+      function pillHtml(status, textOverride) {
+        return `<span class="pill ${status}">${textOverride || statusLabel(status)}</span>`;
+      }
+      function kpiCard(icon, tint, value, label, change) {
+        return `
+    <div class="kpi">
+      <div class="khead">
+        <div class="kicon" style="background:${tint}22;color:${tint};">${svgIcon(icon, 15)}</div>
+      </div>
+      <div class="kval">${value}</div>
+      <div class="klabel">${label}</div>
+      ${change ? `<div class="kchange ${change.dir}">${change.text}</div>` : ""}
+    </div>`;
+      }
+      function confBar(pct) {
+        return `<span class="conf-bar"><i style="width:${pct}%"></i></span><span style="font-size:11.5px;color:var(--gray);">${pct}%</span>`;
+      }
+
+      /* ---- Geo map builder (schematic — projects facility lat/lng, no external map dependency) ---- */
+      function buildGeoMap(records, opts) {
+        opts = opts || {};
+        const W = 760,
+          H = 430,
+          pad = 46;
+        const facSet = {};
+        records.forEach((r) => (facSet[r.facilityId] = r.facility));
+        const facs = Object.values(facSet);
+        if (facs.length === 0)
+          return `<div class="empty-state"><div class="es-title">No facilities in this selection</div></div>`;
+
+        const lats = facs.map((f) => f.lat),
+          lngs = facs.map((f) => f.lng);
+        const minLat = Math.min(...lats),
+          maxLat = Math.max(...lats),
+          minLng = Math.min(...lngs),
+          maxLng = Math.max(...lngs);
+        const px = (lng) =>
+          pad +
+          (maxLng - minLng ? (lng - minLng) / (maxLng - minLng) : 0.5) *
+            (W - pad * 2);
+        const py = (lat) =>
+          H -
+          pad -
+          (maxLat - minLat ? (lat - minLat) / (maxLat - minLat) : 0.5) *
+            (H - pad * 2);
+
+        let gridLines = "";
+        for (let i = 0; i <= 6; i++) {
+          const x = pad + ((W - pad * 2) * i) / 6;
+          gridLines += `<line x1="${x}" y1="${pad * 0.4}" x2="${x}" y2="${H - pad * 0.5}" stroke="#E7EEF8" stroke-width="1"/>`;
+        }
+        for (let i = 0; i <= 5; i++) {
+          const y = pad * 0.4 + ((H - pad * 0.9) * i) / 5;
+          gridLines += `<line x1="${pad * 0.5}" y1="${y}" x2="${W - pad * 0.5}" y2="${y}" stroke="#E7EEF8" stroke-width="1"/>`;
+        }
+
+        let districtLabels = "";
+        const shown = {};
+        facs.forEach((f) => {
+          if (shown[f.district]) return;
+          shown[f.district] = true;
+          districtLabels += `<text x="${px(f.lng)}" y="${py(f.lat) - 18}" font-size="10.5" fill="#94A3B8" font-family="Inter,sans-serif" font-weight="700" text-anchor="middle">${f.districtName}</text>`;
+        });
+
+        let routeLines = "";
+        if (opts.routes) {
+          opts.routes.forEach((rt) => {
+            routeLines += `<line x1="${px(rt.from.lng)}" y1="${py(rt.from.lat)}" x2="${px(rt.to.lng)}" y2="${py(rt.to.lat)}" stroke="var(--blue)" stroke-width="1.6" stroke-dasharray="5 5" opacity="0.85"/>`;
+          });
+        }
+
+        const byFac = {};
+        records.forEach((r) => {
+          if (!byFac[r.facilityId]) byFac[r.facilityId] = [];
+          byFac[r.facilityId].push(r);
+        });
+
+        let nodes = "";
+        Object.keys(byFac).forEach((fid) => {
+          const recs = byFac[fid];
+          const f = recs[0].facility;
+          const order = { critical: 3, high: 3, medium: 2, low: 1 };
+          const worst = recs.reduce(
+            (w, r) => (order[r.status] > order[w] ? r.status : w),
+            "low",
+          );
+          const color =
+            worst === "critical" || worst === "high"
+              ? "var(--critical)"
+              : worst === "medium"
+                ? "var(--medium)"
+                : "var(--low)";
+          const isSurplusSource = recs.some((r) => r.transferable > 200);
+          const r = f.kind === "hospital" ? 9 : f.kind === "depot" ? 8 : 6;
+          const sel =
+            STATE.selectedFacilityId === fid
+              ? `stroke="var(--navy)" stroke-width="2.5"`
+              : `stroke="#fff" stroke-width="1.6"`;
+          nodes += `
+      <g class="geo-node" data-fac="${fid}" style="cursor:pointer;">
+        <circle cx="${px(f.lng)}" cy="${py(f.lat)}" r="${r + 7}" fill="transparent"/>
+        <circle cx="${px(f.lng)}" cy="${py(f.lat)}" r="${r}" fill="${color}" ${sel}/>
+        ${isSurplusSource ? `<circle cx="${px(f.lng)}" cy="${py(f.lat)}" r="${r + 4}" fill="none" stroke="var(--surplus)" stroke-width="1.6"/>` : ""}
+      </g>`;
+        });
+
+        return `
+    <svg viewBox="0 0 ${W} ${H}" width="100%" height="${opts.height || 380}" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="${W}" height="${H}" rx="10" fill="#FBFDFF"/>
+      ${gridLines}${districtLabels}${routeLines}${nodes}
+    </svg>`;
+      }
+      function wireGeoMap(container, onSelect) {
+        container.querySelectorAll(".geo-node").forEach((el) => {
+          el.onclick = () => onSelect(el.dataset.fac);
+        });
+      }
+
+      /* ---- forecast chart (shared) ---- */
+      function buildForecastChart(rec) {
+        const w = 620,
+          h = 200,
+          pad = 32;
+        const max = Math.max(...rec.forecast, 1);
+        const stepX = (w - pad * 1.4) / (rec.forecast.length - 1);
+        const sy = (v) => h - pad * 0.7 - (v / max) * (h - pad * 1.5);
+        const pts = rec.forecast.map((v, i) => [pad * 0.7 + i * stepX, sy(v)]);
+        const solidEnd = 0; // all forecast in this simplified model (no separate historical series stored)
+        const pathD = "M " + pts.map((p) => p.join(",")).join(" L ");
+        const bandTop = pts.map(([x, y], i) => [
+          x,
+          Math.max(pad * 0.3, y - i * 0.55 * (1 + rec.volatility)),
+        ]);
+        const bandBot = pts.map(([x, y], i) => [
+          x,
+          Math.min(h - pad * 0.3, y + i * 0.8 * (1 + rec.volatility)),
+        ]);
+        const bandD =
+          "M " +
+          bandTop.map((p) => p.join(",")).join(" L ") +
+          " L " +
+          bandBot
+            .slice()
+            .reverse()
+            .map((p) => p.join(","))
+            .join(" L ") +
+          " Z";
+        let stockoutIdx = rec.forecast.findIndex((v) => v <= 0.4);
+        if (stockoutIdx === -1) stockoutIdx = rec.forecast.length - 1;
+        const markerX = pad * 0.7 + stockoutIdx * stepX;
+        const leadX =
+          pad * 0.7 + Math.min(rec.leadTime, rec.forecast.length - 1) * stepX;
+        const incomingIdx = Math.min(
+          rec.incoming.etaDays,
+          rec.forecast.length - 1,
+        );
+        const incomingX = pad * 0.7 + incomingIdx * stepX;
+        const color = statusColor(rec.status);
+
+        return `
+  <svg viewBox="0 0 ${w} ${h}" width="100%" height="200" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="fcFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${color}" stop-opacity="0.20"/><stop offset="100%" stop-color="${color}" stop-opacity="0.02"/>
+    </linearGradient></defs>
+    <path d="${bandD}" fill="url(#fcFill)"/>
+    <line x1="${leadX}" y1="8" x2="${leadX}" y2="${h - 20}" stroke="var(--navy)" stroke-width="1.3" stroke-dasharray="3 4"/>
+    <line x1="${incomingX}" y1="8" x2="${incomingX}" y2="${h - 20}" stroke="var(--low)" stroke-width="1.3" stroke-dasharray="2 3"/>
+    <line x1="${markerX}" y1="8" x2="${markerX}" y2="${h - 20}" stroke="var(--critical)" stroke-width="1.3" stroke-dasharray="3 4"/>
+    <path d="${pathD}" fill="none" stroke="${color}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="3.6" fill="${color}"/>
+    <text x="${leadX}" y="${h - 6}" font-size="9.5" fill="#0B4F9C" text-anchor="middle" font-family="Inter,sans-serif">lead time</text>
+    <text x="${incomingX}" y="${h - 6}" font-size="9.5" fill="#16A34A" text-anchor="middle" font-family="Inter,sans-serif">shipment</text>
+    <text x="${markerX}" y="${h - 6}" font-size="9.5" fill="#DC2626" text-anchor="middle" font-family="Inter,sans-serif">stockout</text>
+  </svg>`;
+      }
+      function sparkline(values, color) {
+        const w = 200,
+          h = 44,
+          pad = 4;
+        const max = Math.max(...values, 1),
+          min = Math.min(...values, 0),
+          range = Math.max(max - min, 1);
+        const stepX = (w - pad * 2) / (values.length - 1);
+        const pts = values.map((v, i) => [
+          pad + i * stepX,
+          h - pad - ((v - min) / range) * (h - pad * 2),
+        ]);
+        const d = "M " + pts.map((p) => p.join(",")).join(" L ");
+        return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="44"><path d="${d}" fill="none" stroke="${color || "var(--blue)"}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      }
+      function miniBar(values, labels, colors) {
+        const w = 280,
+          h = 90,
+          pad = 6,
+          bw = (w - pad * 2) / values.length - 8;
+        const max = Math.max(...values, 1);
+        let bars = "";
+        values.forEach((v, i) => {
+          const x = pad + i * ((w - pad * 2) / values.length);
+          const bh = (v / max) * (h - 24);
+          bars += `<rect x="${x}" y="${h - 20 - bh}" width="${bw}" height="${bh}" rx="3" fill="${colors[i]}"/>
+      <text x="${x + bw / 2}" y="${h - 6}" font-size="9.5" fill="#64748B" text-anchor="middle" font-family="Inter,sans-serif">${labels[i]}</text>`;
+        });
+        return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="90">${bars}</svg>`;
+      }
+
+      /* ---- drawer ---- */
+      function openDrawer(html) {
+        document.getElementById("drawerInner").innerHTML = html;
+        document.getElementById("drawer").classList.add("active");
+        document.getElementById("drawerOverlay").classList.add("active");
+      }
+      function closeDrawer() {
+        document.getElementById("drawer").classList.remove("active");
+        document.getElementById("drawerOverlay").classList.remove("active");
+      }
+      document.getElementById("drawerOverlay").onclick = closeDrawer;
+
+      function facilityDrawerHtml(facilityId) {
+        const fac = FACILITIES.find((f) => f.id === facilityId);
+        const recs = facilityRecords(facilityId).sort(
+          (a, b) => a.daysToStockout - b.daysToStockout,
+        );
+        const worst = worstStatus(facilityId);
+        const nearby = FACILITIES.filter((f) => f.id !== facilityId)
+          .map((f) => ({ f, d: haversineKm(fac, f) }))
+          .sort((a, b) => a.d - b.d)
+          .slice(0, 4);
+
+        return `
+    <div class="drawer-head">
+      <div>
+        <div style="font-size:17px;font-weight:700;">${fac.name}</div>
+        <div style="font-size:12.5px;color:var(--gray);margin-top:2px;">${KIND_LABEL[fac.kind]} · ${fac.districtName} ${pillHtml(worst)}</div>
+      </div>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="section-title">Overview</div>
+      <div class="kv-row"><span class="k">Coordinates</span><span class="v">${fac.lat.toFixed(3)}, ${fac.lng.toFixed(3)}</span></div>
+      <div class="kv-row"><span class="k">Capacity</span><span class="v">${fac.capacity} units</span></div>
+      <div class="kv-row"><span class="k">Medicines tracked</span><span class="v">${recs.length}</span></div>
+      <div class="kv-row"><span class="k">Critical shortages</span><span class="v">${recs.filter((r) => r.status === "critical").length}</span></div>
+      <div class="kv-row"><span class="k">Surplus items</span><span class="v">${recs.filter((r) => r.transferable > 0).length}</span></div>
+      <div class="kv-row"><span class="k">Last update</span><span class="v">${fac.lastUpdate.toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</span></div>
+
+      <div class="section-title">Medicine inventory</div>
+      <div class="table-scroll"><table><thead><tr><th>Medicine</th><th>Days left</th><th>Risk</th></tr></thead><tbody>
+      ${recs.map((r) => `<tr><td class="cell-strong">${r.medicine.name}</td><td>${fmtNum(r.daysToStockout)}d</td><td>${pillHtml(r.status)}</td></tr>`).join("")}
+      </tbody></table></div>
+
+      <div class="section-title">Nearby facilities</div>
+      ${nearby
+        .map(
+          (n) => `
+        <div class="kv-row"><span class="k">${n.f.name}</span><span class="v">${n.d.toFixed(1)} km</span></div>
+      `,
+        )
+        .join("")}
+
+      <div class="section-title">Recommended actions</div>
+      ${
+        recs
+          .filter((r) => r.status === "critical" || r.status === "high")
+          .slice(0, 3)
+          .map((r) => {
+            const cands = findDonors(r).filter(
+              (c) => c.distanceKm <= SETTINGS.transportRadiusKm,
+            );
+            if (cands.length === 0)
+              return `<div class="disclaimer" style="margin-bottom:8px;">${r.medicine.name}: no in-region surplus found — emergency procurement recommended.</div>`;
+            const best = cands[0];
+            return `<div class="disclaimer" style="margin-bottom:8px;">${r.medicine.name}: ${fmtNum(recommendedQty(r, best.donor.transferable), 0)} ${r.medicine.unit} available from ${best.donor.facility.name} (${best.distanceKm.toFixed(1)}km).</div>`;
+          })
+          .join("") ||
+        `<div class="disclaimer">No active shortages at this facility.</div>`
+      }
+    </div>`;
+      }
+      function openFacilityDrawer(facilityId) {
+        STATE.selectedFacilityId = facilityId;
+        openDrawer(facilityDrawerHtml(facilityId));
+      }
+
+      /* ======================================================================
+   PAGE: OVERVIEW
+   ====================================================================== */
+      function renderOverview() {
+        const recs = recordsFor(STATE.region, "all");
+        const critical = recs.filter((r) => r.status === "critical");
+        const high = recs.filter((r) => r.status === "high");
+        const clusters = computeClusters().filter((c) => c.count >= 2);
+        const recommendations = computeRecommendations();
+        const surplusUnits = DERIVED.filter((r) => r.transferable > 0).reduce(
+          (s, r) => s + r.transferable,
+          0,
+        );
+        const facCount = new Set(recs.map((r) => r.facilityId)).size;
+        const prevented = recommendations.filter(
+          (r) => r.type === "redistribution",
+        ).length;
+
+        const priority = recs
+          .filter((r) => r.status === "critical" || r.status === "high")
+          .sort((a, b) => a.daysToStockout - b.daysToStockout)
+          .slice(0, 6);
+        const focusMedId =
+          STATE.medicine !== "all"
+            ? STATE.medicine
+            : priority[0]
+              ? priority[0].medicineId
+              : MEDICINES[0].id;
+        const focusRecs = recordsFor(STATE.region, focusMedId);
+        const focusFacId = priority.find((r) => r.medicineId === focusMedId)
+          ? priority.find((r) => r.medicineId === focusMedId).facilityId
+          : focusRecs[0] && focusRecs[0].facilityId;
+        const focusRec =
+          focusRecs.find((r) => r.facilityId === focusFacId) || focusRecs[0];
+
+        const alerts = computeAlerts().slice(0, 5);
+
+        document.getElementById("pageContent").innerHTML = `
+    <div style="margin-bottom:20px;">
+      <div style="font-size:13.5px; color:var(--gray); max-width:640px;">Real-time visibility into medicine availability, shortage risk and intervention opportunities across the region.</div>
+    </div>
+
+    <div class="grid g6" style="margin-bottom:18px;">
+      ${kpiCard("building", "#1976D2", facCount, "Facilities monitored")}
+      ${kpiCard("capsule", "#1976D2", MEDICINES.length, "Medicines tracked")}
+      ${kpiCard("alert", "#DC2626", critical.length, "High-risk stockouts", critical.length ? { dir: "up", text: "Needs attention" } : { dir: "down", text: "None active" })}
+      ${kpiCard("share", "#EA580C", clusters.length, "Regional shortage alerts")}
+      ${kpiCard("box", "#16A34A", fmtNum(surplusUnits, 0) + " units", "Surplus available")}
+      ${kpiCard("exchange", "#16A34A", prevented, "Potential stockouts preventable")}
+    </div>
+
+    <div class="grid g-2-1" style="margin-bottom:18px; align-items:start;">
+      <div class="card">
+        <div class="card-head"><h3>Regional Medicine Availability</h3><div class="hint">Facilities colored by worst risk level across all tracked medicines · click to inspect</div></div>
+        <div id="ovMap"></div>
+        <div class="map-legend">
+          <span><i style="background:var(--low)"></i>Healthy</span>
+          <span><i style="background:var(--medium)"></i>Warning</span>
+          <span><i style="background:var(--critical)"></i>High shortage risk</span>
+          <span><i style="background:#fff;border:2px solid var(--surplus)"></i>Surplus / redistribution source</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Priority Stockout Risks</h3></div>
+        ${
+          priority.length
+            ? priority
+                .map(
+                  (r) => `
+          <div class="clickable" data-fac="${r.facilityId}" style="padding:10px 0;border-bottom:1px solid var(--border-soft); cursor:pointer;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+              <div style="font-weight:700; font-size:13px;">${r.facility.name}</div>
+              ${pillHtml(r.status)}
+            </div>
+            <div style="font-size:12px; color:var(--gray); margin-top:2px;">${r.medicine.name} · ${fmtNum(r.daysToStockout)}d remaining</div>
+            <div style="font-size:11.5px; color:var(--gray); margin-top:3px;">${confBar(r.confidence)}</div>
+          </div>`,
+                )
+                .join("")
+            : `<div class="empty-state"><div class="es-title">No high-risk facilities</div><div class="es-sub">Everything in this selection is currently stable.</div></div>`
+        }
+      </div>
+    </div>
+
+    <div class="grid g-1-2" style="margin-bottom:18px; align-items:start;">
+      <div class="card">
+        <div class="card-head"><h3>Shortage Propagation</h3></div>
+        <div style="font-size:26px; font-weight:800;">${clusters.length}</div>
+        <div style="font-size:12px; color:var(--gray); margin-bottom:12px;">potential regional clusters detected</div>
+        ${
+          clusters
+            .slice(0, 3)
+            .map(
+              (c) => `
+          <div style="padding:8px 0; border-top:1px solid var(--border-soft); font-size:12.5px;">
+            <b>${c.medicine.name}</b> — ${c.district.name}<br>
+            <span style="color:var(--gray);">${c.count} facilities · ${c.radiusKm}km radius · ${c.confidence}% confidence</span>
+          </div>`,
+            )
+            .join("") ||
+          `<div style="font-size:12.5px;color:var(--gray);">No clusters detected right now.</div>`
+        }
+        <button class="btn-sm ghost" style="margin-top:12px;width:100%;" onclick="navigate('propagation')">Open Propagation view</button>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3>${focusRec ? focusRec.medicine.name + " — Stock Forecast" : "Stock Forecast"}</h3>
+          <div class="hint">${focusRec ? focusRec.facility.name : ""}</div>
+        </div>
+        ${focusRec ? buildForecastChart(focusRec) : `<div class="empty-state"><div class="es-title">No data</div></div>`}
+        ${
+          focusRec
+            ? `<div style="display:flex; gap:22px; margin-top:8px; flex-wrap:wrap; font-size:12px; color:var(--gray);">
+          <div><b style="color:var(--text)">${fmtDate(focusRec.stockoutDate)}</b><br>forecasted stockout</div>
+          <div><b style="color:var(--text)">${fmtNum(focusRec.stock, 0)} ${focusRec.medicine.unit}</b><br>current stock</div>
+          <div><b style="color:var(--text)">${focusRec.confidence}%</b><br>forecast confidence</div>
+        </div>`
+            : ""
+        }
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <div class="card-head"><h3>Recommended Interventions</h3><div class="hint">Top ranked by urgency, surplus availability and transport feasibility</div></div>
+      <div class="table-scroll"><table><thead><tr><th>Priority</th><th>Medicine</th><th>From → To</th><th>Qty</th><th>Recipient days</th><th>Distance</th><th>Type</th></tr></thead><tbody>
+      ${
+        recommendations
+          .slice(0, 5)
+          .map(
+            (r) => `
+        <tr>
+          <td>${pillHtml(r.priority === "HIGH" ? "critical" : "medium", r.priority)}</td>
+          <td class="cell-strong">${r.recipientRec.medicine.name}</td>
+          <td>${r.type === "redistribution" ? `${r.donorRec.facility.name} → ${r.recipientRec.facility.name}` : `— → ${r.recipientRec.facility.name}`}</td>
+          <td>${r.type === "redistribution" ? fmtNum(r.quantity, 0) + " " + r.recipientRec.medicine.unit : "—"}</td>
+          <td>${fmtNum(r.recipientRec.daysToStockout)}d</td>
+          <td>${r.type === "redistribution" ? r.distanceKm + " km" : "—"}</td>
+          <td>${r.type === "redistribution" ? "Redistribution" : "Emergency procurement"}</td>
+        </tr>`,
+          )
+          .join("") ||
+        `<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:24px;">No interventions needed right now.</td></tr>`
+      }
+      </tbody></table></div>
+      <button class="btn-sm solid" style="margin-top:12px;" onclick="navigate('interventions')">View all interventions</button>
+    </div>
+
+    <div class="grid g2">
+      <div class="card">
+        <div class="card-head"><h3>Recent Alerts</h3></div>
+        ${alerts
+          .map(
+            (a) => `
+          <div style="padding:9px 0; border-bottom:1px solid var(--border-soft);">
+            <div style="display:flex; justify-content:space-between;"><b style="font-size:12.5px;">${a.type}</b>${pillHtml(a.severity)}</div>
+            <div style="font-size:12px; color:var(--gray); margin-top:2px;">${a.facility ? a.facility.name + " · " : ""}${a.medicine.name} — ${a.message}</div>
+          </div>`,
+          )
+          .join("")}
+        <button class="btn-sm ghost" style="margin-top:10px;width:100%;" onclick="navigate('alerts')">Open Alert Center</button>
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Simulated Intervention Impact</h3><div class="hint">Not a measured real-world result</div></div>
+        ${renderImpactBlock()}
+      </div>
+    </div>
+  `;
+        document.getElementById("ovMap").innerHTML = buildGeoMap(recs, {
+          height: 340,
+        });
+        wireGeoMap(document.getElementById("ovMap"), (fid) =>
+          openFacilityDrawer(fid),
+        );
+        document.querySelectorAll("[data-fac]").forEach((el) => {
+          if (el.closest("#ovMap")) return;
+          el.onclick = () => openFacilityDrawer(el.dataset.fac);
+        });
+      }
+
+      function renderImpactBlock() {
+        const withoutStockouts = DERIVED.filter(
+          (r) => r.status === "critical",
+        ).length;
+        const recs = computeRecommendations();
+        const coverable = recs.filter(
+          (r) => r.type === "redistribution",
+        ).length;
+        const withInterventions = Math.max(0, withoutStockouts - coverable);
+        const clusters = computeClusters().filter((c) => c.count >= 2).length;
+        return `
+    <div class="before-after" style="grid-template-columns:1fr 1fr;">
+      <div class="ba-box before"><div class="ba-label">Without MEDISYNC</div>
+        <div class="ba-stat"><div class="l">Projected stockouts</div><div class="v">${withoutStockouts}</div></div>
+        <div class="ba-stat"><div class="l">Regional shortage clusters</div><div class="v">${clusters}</div></div>
+      </div>
+      <div class="ba-box after"><div class="ba-label">With MEDISYNC interventions</div>
+        <div class="ba-stat"><div class="l">Projected stockouts</div><div class="v">${withInterventions}</div></div>
+        <div class="ba-stat"><div class="l">Covered by in-region redistribution</div><div class="v">${coverable}</div></div>
+      </div>
+    </div>
+    <div class="disclaimer" style="margin-top:12px;">Simulated intervention impact, calculated from the current seeded dataset — not a measured real-world outcome.</div>`;
+      }
+
+      /* ======================================================================
+   PAGE: REGIONAL RISK MAP
+   ====================================================================== */
+      function renderRiskMap() {
+        const recs = recordsFor(STATE.region, STATE.medicine);
+        document.getElementById("pageContent").innerHTML = `
+    <div class="card" style="margin-bottom:18px;">
+      <div class="card-head"><h3>Regional Risk Map</h3><div class="hint">${STATE.medicine === "all" ? "Showing worst risk across all medicines" : MEDICINES.find((m) => m.id === STATE.medicine).name}</div></div>
+      <div id="rmMap"></div>
+      <div class="map-legend">
+        <span><i style="background:var(--low)"></i>Healthy</span>
+        <span><i style="background:var(--medium)"></i>Warning</span>
+        <span><i style="background:var(--critical)"></i>High shortage risk</span>
+        <span><i style="background:#fff;border:2px solid var(--surplus)"></i>Surplus / redistribution source</span>
+      </div>
+      <div class="disclaimer" style="margin-top:14px;">Schematic geographic view built from facility coordinates — a drop-in replacement for a live OpenStreetMap/Leaflet layer with no external dependency required for this demo.</div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Facilities in view</h3></div>
+      <div class="table-scroll"><table><thead><tr><th>Facility</th><th>District</th><th>Type</th><th>Worst risk</th></tr></thead><tbody>
+        ${[...new Set(recs.map((r) => r.facilityId))]
+          .map((fid) => {
+            const f = FACILITIES.find((x) => x.id === fid);
+            const w = worstStatus(fid);
+            return `<tr class="clickable" data-fac="${fid}"><td class="cell-strong">${f.name}</td><td>${f.districtName}</td><td>${KIND_LABEL[f.kind]}</td><td>${pillHtml(w)}</td></tr>`;
+          })
+          .join("")}
+      </tbody></table></div>
+    </div>
+  `;
+        document.getElementById("rmMap").innerHTML = buildGeoMap(recs, {
+          height: 420,
+        });
+        wireGeoMap(document.getElementById("rmMap"), openFacilityDrawer);
+        document
+          .querySelectorAll("[data-fac]")
+          .forEach(
+            (el) => (el.onclick = () => openFacilityDrawer(el.dataset.fac)),
+          );
+      }
+
+      /* ======================================================================
+   PAGE: INVENTORY
+   ====================================================================== */
+      let inventoryPage = 0;
+      let inventorySort = "risk";
+      function renderInventory() {
+        let recs = recordsFor(STATE.region, STATE.medicine);
+        if (STATE.search) {
+          recs = recs.filter(
+            (r) =>
+              r.facility.name.toLowerCase().includes(STATE.search) ||
+              r.medicine.name.toLowerCase().includes(STATE.search),
+          );
+        }
+        const order = { critical: 0, high: 1, medium: 2, low: 3 };
+        if (inventorySort === "risk")
+          recs = recs
+            .slice()
+            .sort(
+              (a, b) =>
+                order[a.status] - order[b.status] ||
+                a.daysToStockout - b.daysToStockout,
+            );
+        else if (inventorySort === "stock")
+          recs = recs.slice().sort((a, b) => a.stock - b.stock);
+        else if (inventorySort === "stockout")
+          recs = recs
+            .slice()
+            .sort((a, b) => a.daysToStockout - b.daysToStockout);
+        else if (inventorySort === "consumption")
+          recs = recs
+            .slice()
+            .sort((a, b) => b.recentConsumption - a.recentConsumption);
+
+        const pageSize = 14;
+        const totalPages = Math.max(1, Math.ceil(recs.length / pageSize));
+        inventoryPage = Math.min(inventoryPage, totalPages - 1);
+        const pageRecs = recs.slice(
+          inventoryPage * pageSize,
+          inventoryPage * pageSize + pageSize,
+        );
+
+        document.getElementById("pageContent").innerHTML = `
+    <div class="card">
+      <div class="card-head">
+        <h3>Medicine Inventory</h3>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span class="hint">${recs.length} facility-medicine records</span>
+          <div class="tb-select"><select id="invSort">
+            <option value="risk">Sort: highest risk</option>
+            <option value="stock">Sort: lowest stock</option>
+            <option value="stockout">Sort: earliest stockout</option>
+            <option value="consumption">Sort: highest consumption</option>
+          </select></div>
+        </div>
+      </div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Facility</th><th>Medicine</th><th>Current stock</th><th>Daily consumption</th><th>Days remaining</th><th>Incoming</th><th>Lead time</th><th>Risk</th><th>Last updated</th></tr></thead>
+        <tbody>
+        ${
+          pageRecs
+            .map(
+              (r) => `
+          <tr class="clickable" data-fac="${r.facilityId}">
+            <td class="cell-strong">${r.facility.name}<div class="cell-sub">${r.facility.districtName}</div></td>
+            <td>${r.medicine.name}</td>
+            <td>${fmtNum(r.stock, 0)} ${r.medicine.unit}</td>
+            <td>${fmtNum(r.recentConsumption)}/day</td>
+            <td>${fmtNum(r.daysToStockout)}d</td>
+            <td>${fmtNum(r.incoming.qty, 0)}<div class="cell-sub">${r.incoming.delayed ? "delayed to " : "eta "}day ${r.incoming.etaDays}</div></td>
+            <td>${r.leadTime}d</td>
+            <td>${pillHtml(r.status)}</td>
+            <td class="cell-sub">${r.facility.lastUpdate.toLocaleDateString("en-GB", { day: "2-digit", month: "short" })}</td>
+          </tr>`,
+            )
+            .join("") ||
+          `<tr><td colspan="9" style="text-align:center;color:var(--gray);padding:24px;">No records match this filter.</td></tr>`
+        }
+        </tbody>
+      </table></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
+        <span class="hint">Page ${inventoryPage + 1} of ${totalPages}</span>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-sm" id="invPrev" ${inventoryPage === 0 ? "disabled" : ""}>Previous</button>
+          <button class="btn-sm" id="invNext" ${inventoryPage >= totalPages - 1 ? "disabled" : ""}>Next</button>
+        </div>
+      </div>
+    </div>
+  `;
+        document.getElementById("invSort").value = inventorySort;
+        document.getElementById("invSort").onchange = (e) => {
+          inventorySort = e.target.value;
+          inventoryPage = 0;
+          renderInventory();
+        };
+        document.getElementById("invPrev").onclick = () => {
+          inventoryPage--;
+          renderInventory();
+        };
+        document.getElementById("invNext").onclick = () => {
+          inventoryPage++;
+          renderInventory();
+        };
+        document
+          .querySelectorAll("[data-fac]")
+          .forEach(
+            (el) => (el.onclick = () => openFacilityDrawer(el.dataset.fac)),
+          );
+      }
+
+      /* ======================================================================
+   PAGE: FORECASTS
+   ====================================================================== */
+      function renderForecasts() {
+        const facOptions = FACILITIES.filter(
+          (f) => STATE.region === "all" || f.district === STATE.region,
+        );
+        if (
+          !STATE.selectedFacilityId ||
+          !facOptions.find((f) => f.id === STATE.selectedFacilityId)
+        )
+          STATE.selectedFacilityId = facOptions[0].id;
+        const medId =
+          STATE.medicine !== "all" ? STATE.medicine : STATE.selectedMedicineId;
+        const rec = recordOf(STATE.selectedFacilityId, medId);
+
+        document.getElementById("pageContent").innerHTML = `
+    <div class="grid g-1-2" style="align-items:start;">
+      <div class="card">
+        <div class="card-head"><h3>Select</h3></div>
+        <div class="setting-row"><label>Facility</label>
+          <select id="fcFacility" style="width:100%; padding:9px; border:1px solid var(--border); border-radius:8px;">
+            ${facOptions.map((f) => `<option value="${f.id}" ${f.id === STATE.selectedFacilityId ? "selected" : ""}>${f.name}</option>`).join("")}
+          </select>
+        </div>
+        <div class="setting-row"><label>Medicine</label>
+          <select id="fcMedicine" style="width:100%; padding:9px; border:1px solid var(--border); border-radius:8px;">
+            ${MEDICINES.map((m) => `<option value="${m.id}" ${m.id === medId ? "selected" : ""}>${m.name}</option>`).join("")}
+          </select>
+        </div>
+        ${
+          rec
+            ? `
+        <div class="section-title">Confidence factors</div>
+        <ul class="factor-list">
+          <li>90-day rolling consumption history</li>
+          <li>${rec.volatility < 0.3 ? "Stable demand pattern" : "Elevated demand volatility"}</li>
+          <li>${rec.incoming.delayed ? "Recent replenishment delay on record" : "Recent replenishment on schedule"}</li>
+        </ul>`
+            : ""
+        }
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>${rec ? rec.medicine.name : ""} — ${rec ? rec.facility.name : ""}</h3><div class="hint">Historical + forecasted stock, ${SETTINGS.forecastHorizon}-day horizon</div></div>
+        ${rec ? buildForecastChart(rec) : `<div class="empty-state">Select a facility and medicine.</div>`}
+        ${
+          rec
+            ? `
+        <div class="grid g4" style="margin-top:16px;">
+          <div class="dd-stat" style="background:var(--blue-xlight);border:1px solid var(--border);border-radius:10px;padding:12px;"><div class="cell-sub">Forecasted stockout</div><div style="font-size:16px;font-weight:800;">${fmtDate(rec.stockoutDate)}</div></div>
+          <div class="dd-stat" style="background:var(--blue-xlight);border:1px solid var(--border);border-radius:10px;padding:12px;"><div class="cell-sub">Expected remaining stock</div><div style="font-size:16px;font-weight:800;">0 ${rec.medicine.unit}</div></div>
+          <div class="dd-stat" style="background:var(--blue-xlight);border:1px solid var(--border);border-radius:10px;padding:12px;"><div class="cell-sub">Forecast confidence</div><div style="font-size:16px;font-weight:800;">${rec.confidence}%</div></div>
+          <div class="dd-stat" style="background:var(--blue-xlight);border:1px solid var(--border);border-radius:10px;padding:12px;"><div class="cell-sub">Risk level</div><div style="font-size:16px;font-weight:800;">${pillHtml(rec.status)}</div></div>
+        </div>
+        <div class="disclaimer" style="margin-top:14px;"><b>Why this risk level:</b> ${rec.reason} Forecasts are estimates based on available inventory and consumption data and should be reviewed by authorized personnel — not presented as certainty.</div>
+        `
+            : ""
+        }
+      </div>
+    </div>
+  `;
+        document.getElementById("fcFacility").onchange = (e) => {
+          STATE.selectedFacilityId = e.target.value;
+          renderForecasts();
+        };
+        document.getElementById("fcMedicine").onchange = (e) => {
+          STATE.selectedMedicineId = e.target.value;
+          renderForecasts();
+        };
+      }
+
+      /* ======================================================================
+   PAGE: PROPAGATION
+   ====================================================================== */
+      function renderPropagation() {
+        const allClusters = computeClusters();
+        const spreading = allClusters.filter((c) => c.count >= 2);
+        const isolated = allClusters.filter((c) => c.count === 1);
+        const facilitiesAffected = new Set(
+          allClusters.flatMap((c) => c.affected.map((a) => a.facilityId)),
+        ).size;
+        const medsAffected = new Set(allClusters.map((c) => c.medicine.id))
+          .size;
+
+        const top = spreading[0];
+        const mapRecs = top
+          ? DERIVED.filter((r) => r.medicineId === top.medicine.id)
+          : recordsFor(STATE.region, STATE.medicine);
+        const routes = top ? [] : [];
+
+        document.getElementById("pageContent").innerHTML = `
+    <div class="grid g4" style="margin-bottom:18px;">
+      ${kpiCard("share", "#EA580C", spreading.length, "Regional shortage signals")}
+      ${kpiCard("building", "#DC2626", facilitiesAffected, "Facilities affected")}
+      ${kpiCard("capsule", "#D97706", medsAffected, "Medicines affected")}
+      ${kpiCard("trend", "#DC2626", spreading.length, "Potential spreading clusters")}
+    </div>
+
+    <div class="grid g-2-1" style="align-items:start;">
+      <div class="card">
+        <div class="card-head"><h3>Regional graph</h3><div class="hint">${top ? top.medicine.name + " — " + top.district.name : "Facility network"}</div></div>
+        <div id="propMap"></div>
+      </div>
+      <div class="card">
+        ${
+          top
+            ? `
+          <div class="card-head"><h3>Detected Shortage Cluster</h3></div>
+          <div class="kv-row"><span class="k">Medicine</span><span class="v">${top.medicine.name}</span></div>
+          <div class="kv-row"><span class="k">District</span><span class="v">${top.district.name}</span></div>
+          <div class="kv-row"><span class="k">Affected facilities</span><span class="v">${top.count}</span></div>
+          <div class="kv-row"><span class="k">Average stock decline</span><span class="v">${top.avgDeclinePct}%</span></div>
+          <div class="kv-row"><span class="k">Geographic radius</span><span class="v">${top.radiusKm} km</span></div>
+          <div class="kv-row"><span class="k">Propagation confidence</span><span class="v">${top.confidence}%</span></div>
+          <div class="disclaimer" style="margin-top:14px;">Status: <b>${top.status}</b></div>
+          <button class="btn-sm solid" style="margin-top:14px;width:100%;" onclick="navigate('interventions')">View intervention options</button>
+        `
+            : `<div class="empty-state"><div class="es-title">No spreading clusters</div><div class="es-sub">All declines currently look isolated.</div></div>`
+        }
+      </div>
+    </div>
+
+    <div class="grid g2" style="margin-top:18px;">
+      <div class="card">
+        <div class="card-head"><h3>All spreading clusters</h3></div>
+        ${
+          spreading
+            .map(
+              (c) => `
+          <div style="padding:10px 0; border-bottom:1px solid var(--border-soft); font-size:12.5px;">
+            <b>${c.medicine.name}</b> — ${c.district.name} ${pillHtml("high", "Cluster")}
+            <div style="color:var(--gray); margin-top:3px;">${c.count} facilities · avg decline ${c.avgDeclinePct}% · ${c.radiusKm}km · ${c.confidence}% confidence</div>
+          </div>`,
+            )
+            .join("") || `<div class="hint">None currently.</div>`
+        }
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Isolated shortages</h3><div class="hint">Single facility, not (yet) spreading</div></div>
+        ${
+          isolated
+            .slice(0, 8)
+            .map(
+              (c) => `
+          <div style="padding:10px 0; border-bottom:1px solid var(--border-soft); font-size:12.5px;">
+            <b>${c.medicine.name}</b> — ${c.affected[0].facility.name}
+            <div style="color:var(--gray); margin-top:3px;">${c.district.name} · likely isolated</div>
+          </div>`,
+            )
+            .join("") || `<div class="hint">None currently.</div>`
+        }
+      </div>
+    </div>
+  `;
+        document.getElementById("propMap").innerHTML = buildGeoMap(mapRecs, {
+          height: 380,
+          routes,
+        });
+        wireGeoMap(document.getElementById("propMap"), openFacilityDrawer);
+      }
+
+      /* ======================================================================
+   PAGE: INTERVENTIONS
+   ====================================================================== */
+      function renderInterventions() {
+        let recs = computeRecommendations();
+        const critical = recs.filter((r) => r.priority === "HIGH").length;
+        const redistrib = recs.filter(
+          (r) => r.type === "redistribution",
+        ).length;
+        const procurement = recs.filter((r) => r.type === "procurement").length;
+        const prevented = redistrib;
+
+        document.getElementById("pageContent").innerHTML = `
+    <div class="grid g4" style="margin-bottom:18px;">
+      ${kpiCard("alert", "#DC2626", critical, "Critical interventions")}
+      ${kpiCard("exchange", "#16A34A", redistrib, "Redistribution opportunities")}
+      ${kpiCard("box", "#D97706", procurement, "Emergency procurement candidates")}
+      ${kpiCard("trend", "#1976D2", prevented, "Potential stockouts prevented")}
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Recommended Interventions</h3></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Priority</th><th>Medicine</th><th>From</th><th>To</th><th>Quantity</th><th>Recipient days</th><th>Distance</th><th>Transport</th><th>Type</th><th>Confidence</th></tr></thead>
+        <tbody>
+        ${
+          recs
+            .map(
+              (r, i) => `
+          <tr class="clickable" data-idx="${i}">
+            <td>${pillHtml(r.priority === "HIGH" ? "critical" : "medium", r.priority)}</td>
+            <td class="cell-strong">${r.recipientRec.medicine.name}</td>
+            <td>${r.type === "redistribution" ? r.donorRec.facility.name : "—"}</td>
+            <td>${r.recipientRec.facility.name}</td>
+            <td>${r.type === "redistribution" ? fmtNum(r.quantity, 0) + " " + r.recipientRec.medicine.unit : "—"}</td>
+            <td>${fmtNum(r.recipientRec.daysToStockout)}d</td>
+            <td>${r.type === "redistribution" ? r.distanceKm + " km" : "—"}</td>
+            <td>${r.type === "redistribution" ? r.transportHours + " hr" : "—"}</td>
+            <td>${r.type === "redistribution" ? "Redistribution" : "Emergency procurement"}</td>
+            <td>${confBar(r.recipientRec.confidence)}</td>
+          </tr>`,
+            )
+            .join("") ||
+          `<tr><td colspan="10" style="text-align:center;color:var(--gray);padding:24px;">No interventions needed right now.</td></tr>`
+        }
+        </tbody>
+      </table></div>
+    </div>
+  `;
+        document.querySelectorAll("[data-idx]").forEach((el) => {
+          el.onclick = () => openInterventionDrawer(recs[+el.dataset.idx]);
+        });
+      }
+
+      function interventionKey(r) {
+        return r.recipientRec.facilityId + "|" + r.recipientRec.medicineId;
+      }
+      function openInterventionDrawer(r) {
+        const key = interventionKey(r);
+        const status = STATE.interventionStatus[key];
+        const html = `
+    <div class="drawer-head">
+      <div><div style="font-size:17px;font-weight:700;">${r.type === "redistribution" ? "Recommended Redistribution" : "Emergency Procurement Required"}</div>
+      <div style="font-size:12.5px;color:var(--gray);margin-top:2px;">${r.recipientRec.medicine.name}</div></div>
+      <button class="drawer-close" onclick="closeDrawer()">✕</button>
+    </div>
+    <div class="drawer-body">
+      ${
+        r.type === "redistribution"
+          ? `
+        <div class="kv-row"><span class="k">From</span><span class="v">${r.donorRec.facility.name}</span></div>
+        <div class="kv-row"><span class="k">To</span><span class="v">${r.recipientRec.facility.name}</span></div>
+        <div class="kv-row"><span class="k">Quantity</span><span class="v">${fmtNum(r.quantity, 0)} ${r.recipientRec.medicine.unit}</span></div>
+        <div class="kv-row"><span class="k">Distance</span><span class="v">${r.distanceKm} km</span></div>
+        <div class="kv-row"><span class="k">Estimated transport</span><span class="v">${r.transportHours} hr</span></div>
+        <div class="kv-row"><span class="k">Confidence</span><span class="v">${r.recipientRec.confidence}%</span></div>
+        <div class="section-title">Why this action is recommended</div>
+        <ul class="factor-list">
+          <li>Recipient has ${fmtNum(r.recipientRec.daysToStockout)} days of stock remaining.</li>
+          <li>Donor has ${fmtNum(r.donorRec.transferable, 0)} ${r.recipientRec.medicine.unit} of transferable surplus.</li>
+          <li>Facilities are ${r.distanceKm} km apart, ~${r.transportHours} hr transport.</li>
+          <li>Donor remains above safety stock (${fmtNum(r.donorRec.safetyStock, 0)} ${r.recipientRec.medicine.unit}) after transfer.</li>
+        </ul>
+        <div class="section-title">Expected result</div>
+        <div class="before-after">
+          <div class="ba-box before"><div class="ba-label">Before</div><div class="ba-stat"><div class="l">Days remaining</div><div class="v">${fmtNum(r.recipientRec.daysToStockout)}</div></div></div>
+          <div class="ba-arrow">→</div>
+          <div class="ba-box after"><div class="ba-label">After</div><div class="ba-stat"><div class="l">Days remaining</div><div class="v">${fmtNum((r.recipientRec.stock + r.quantity) / r.recipientRec.recentConsumption)}</div></div></div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:16px;">
+          <button class="btn-sm solid" style="flex:1;" onclick="prefillSimulator('${r.recipientRec.medicineId}','${r.donorRec.facilityId}','${r.recipientRec.facilityId}',${r.quantity}); navigate('simulator'); closeDrawer();">Simulate</button>
+          <button class="btn-sm ghost" style="flex:1; ${status === "approved" ? "background:var(--low-bg);border-color:#CFEEDA;" : ""}" onclick="setInterventionStatus('${key}','approved')">Approve</button>
+          <button class="btn-sm danger" style="flex:1;" onclick="setInterventionStatus('${key}','rejected')">Reject</button>
+        </div>
+        ${status ? `<div class="disclaimer" style="margin-top:12px;">Status: <b>${status}</b> (demo only — not persisted to a backend).</div>` : ""}
+      `
+          : `
+        <div class="kv-row"><span class="k">Medicine</span><span class="v">${r.recipientRec.medicine.name}</span></div>
+        <div class="kv-row"><span class="k">Facility</span><span class="v">${r.recipientRec.facility.name}</span></div>
+        <div class="kv-row"><span class="k">Projected stockout</span><span class="v">${fmtDate(r.recipientRec.stockoutDate)}</span></div>
+        <div class="kv-row"><span class="k">Required quantity (to ${COMFORT_DAYS}d buffer)</span><span class="v">${fmtNum(Math.max(0, Math.ceil(r.recipientRec.recentConsumption * COMFORT_DAYS - r.recipientRec.stock)), 0)} ${r.recipientRec.medicine.unit}</span></div>
+        <div class="disclaimer" style="margin-top:14px;">No feasible redistribution source found within the configured ${SETTINGS.transportRadiusKm}km transport radius.<br><br><b>Recommended action:</b> emergency procurement.</div>
+      `
+      }
+    </div>`;
+        openDrawer(html);
+      }
+      function setInterventionStatus(key, status) {
+        STATE.interventionStatus[key] = status;
+        toast(`Intervention ${status}.`);
+        closeDrawer();
+      }
+
+      /* ======================================================================
+   PAGE: SIMULATOR
+   ====================================================================== */
+      function prefillSimulator(medId, donorId, recipientId, qty) {
+        STATE.sim = { medicineId: medId, donorId, recipientId, qty };
+      }
+      function renderSimulator() {
+        const s = STATE.sim;
+        if (!s.medicineId) s.medicineId = MEDICINES[0].id;
+        const eligible = DERIVED.filter((r) => r.medicineId === s.medicineId);
+        const donors = eligible.filter((r) => r.transferable > 0);
+        const recipients = eligible.filter((r) => r.status !== "low" || true); // allow any as recipient for exploration
+
+        if (!s.donorId || !donors.find((d) => d.facilityId === s.donorId))
+          s.donorId = donors[0] ? donors[0].facilityId : null;
+        if (!s.recipientId) {
+          const worst = eligible
+            .slice()
+            .sort((a, b) => a.daysToStockout - b.daysToStockout)[0];
+          s.recipientId = worst ? worst.facilityId : null;
+        }
+
+        const donorRec = recordOf(s.donorId, s.medicineId);
+        const recipientRec = recordOf(s.recipientId, s.medicineId);
+        if (!s.qty && donorRec && recipientRec)
+          s.qty =
+            recommendedQty(recipientRec, donorRec.transferable) ||
+            Math.round(donorRec.transferable * 0.3);
+
+        let afterStock = 0,
+          afterDays = 0,
+          afterStatus = "low",
+          afterDate = null,
+          donorAfterStock = 0,
+          donorAfterDays = 0,
+          warn = false;
+        if (recipientRec && donorRec) {
+          afterStock = recipientRec.stock + (s.qty || 0);
+          afterDays = +(afterStock / recipientRec.recentConsumption).toFixed(1);
+          afterStatus = statusFromDays(afterDays);
+          afterDate = stockoutDate(afterDays);
+          donorAfterStock = donorRec.stock - (s.qty || 0);
+          donorAfterDays = +(
+            donorAfterStock / donorRec.recentConsumption
+          ).toFixed(1);
+          warn = donorAfterStock < donorRec.safetyStock;
+        }
+
+        document.getElementById("pageContent").innerHTML = `
+    <div class="grid g-1-2" style="align-items:start;">
+      <div class="card">
+        <div class="card-head"><h3>Intervention Simulator</h3></div>
+        <div class="setting-row"><label>Medicine</label>
+          <select id="simMed" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;">
+            ${MEDICINES.map((m) => `<option value="${m.id}" ${m.id === s.medicineId ? "selected" : ""}>${m.name}</option>`).join("")}
+          </select>
+        </div>
+        <div class="setting-row"><label>Donor facility (surplus)</label>
+          <select id="simDonor" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;">
+            ${donors.map((d) => `<option value="${d.facilityId}" ${d.facilityId === s.donorId ? "selected" : ""}>${d.facility.name} — ${fmtNum(d.transferable, 0)} transferable</option>`).join("") || `<option>No surplus donors for this medicine</option>`}
+          </select>
+        </div>
+        <div class="setting-row"><label>Recipient facility</label>
+          <select id="simRecipient" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;">
+            ${eligible.map((r) => `<option value="${r.facilityId}" ${r.facilityId === s.recipientId ? "selected" : ""}>${r.facility.name} — ${statusLabel(r.status)}</option>`).join("")}
+          </select>
+        </div>
+        <div class="setting-row"><label>Quantity to transfer</label>
+          <input type="number" id="simQty" value="${s.qty || 0}" min="0" ${donorRec ? `max="${donorRec.transferable}"` : ""} style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;">
+          <div class="desc">${donorRec ? `Up to ${fmtNum(donorRec.transferable, 0)} ${recipientRec ? recipientRec.medicine.unit : ""} available without dropping the donor below its safety stock.` : ""}</div>
+        </div>
+        <button class="btn-sm solid" id="simApply" style="width:100%; margin-top:6px;">Apply intervention (demo)</button>
+        <div class="disclaimer" style="margin-top:12px;">This simulation does not permanently modify inventory unless "Apply" is clicked — and even then, only for this browser session.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3>Before vs After</h3><div class="hint">${recipientRec ? recipientRec.medicine.name + " — " + recipientRec.facility.name : ""}</div></div>
+        ${
+          recipientRec && donorRec
+            ? `
+        <div class="before-after">
+          <div class="ba-box before">
+            <div class="ba-label">Before</div>
+            <div class="ba-stat"><div class="l">Stock</div><div class="v">${fmtNum(recipientRec.stock, 0)}</div></div>
+            <div class="ba-stat"><div class="l">Days remaining</div><div class="v">${fmtNum(recipientRec.daysToStockout)}</div></div>
+            <div class="ba-stat"><div class="l">Risk</div><div class="v">${pillHtml(recipientRec.status)}</div></div>
+            <div class="ba-stat"><div class="l">Stockout date</div><div class="v" style="font-size:14px;">${fmtDate(recipientRec.stockoutDate)}</div></div>
+          </div>
+          <div class="ba-arrow"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 12h16M14 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <div class="ba-box after">
+            <div class="ba-label">After</div>
+            <div class="ba-stat"><div class="l">Stock</div><div class="v">${fmtNum(afterStock, 0)}</div></div>
+            <div class="ba-stat"><div class="l">Days remaining</div><div class="v">${fmtNum(afterDays)}</div></div>
+            <div class="ba-stat"><div class="l">Risk</div><div class="v">${pillHtml(afterStatus)}</div></div>
+            <div class="ba-stat"><div class="l">Stockout date</div><div class="v" style="font-size:14px;">${fmtDate(afterDate)}</div></div>
+          </div>
+        </div>
+        <div class="section-title">Estimated impact</div>
+        <div class="disclaimer">+${fmtNum(afterDays - recipientRec.daysToStockout)} additional days of stock. Risk ${recipientRec.status === afterStatus ? "unchanged" : `reduced from ${statusLabel(recipientRec.status).toUpperCase()} to ${statusLabel(afterStatus).toUpperCase()}`}.</div>
+        <div class="section-title">Donor after transfer</div>
+        <div class="kv-row"><span class="k">${donorRec.facility.name} stock</span><span class="v">${fmtNum(donorAfterStock, 0)} (${fmtNum(donorAfterDays)}d)</span></div>
+        ${warn ? `<div class="disclaimer" style="margin-top:8px;background:var(--high-bg);color:#8A3B10;">This quantity would drop the donor below its own safety stock — reduce the transfer amount.</div>` : ""}
+        `
+            : `<div class="empty-state"><div class="es-title">No surplus donor available for this medicine</div><div class="es-sub">Try a different medicine or check Emergency Procurement in Interventions.</div></div>`
+        }
+      </div>
+    </div>
+  `;
+        document.getElementById("simMed").onchange = (e) => {
+          STATE.sim = {
+            medicineId: e.target.value,
+            donorId: null,
+            recipientId: null,
+            qty: null,
+          };
+          renderSimulator();
+        };
+        document.getElementById("simDonor").onchange = (e) => {
+          s.donorId = e.target.value;
+          s.qty = null;
+          renderSimulator();
+        };
+        document.getElementById("simRecipient").onchange = (e) => {
+          s.recipientId = e.target.value;
+          renderSimulator();
+        };
+        const qtyEl = document.getElementById("simQty");
+        if (qtyEl)
+          qtyEl.oninput = (e) => {
+            s.qty = +e.target.value || 0;
+            renderSimulator();
+          };
+        const applyBtn = document.getElementById("simApply");
+        if (applyBtn)
+          applyBtn.onclick = () => {
+            if (!donorRec || !recipientRec || !s.qty) return;
+            const unit = recipientRec.medicine.unit,
+              toName = recipientRec.facility.name,
+              qtyMoved = s.qty;
+            donorRec.facility.med[donorRec.medicineId].stock -= s.qty;
+            recipientRec.facility.med[recipientRec.medicineId].stock += s.qty;
+            recompute();
+            s.qty = null;
+            toast(
+              `Applied: moved ${fmtNum(qtyMoved, 0)} ${unit} to ${toName}.`,
+            );
+            renderSimulator();
+          };
+      }
+
+      /* ======================================================================
+   PAGE: FACILITIES
+   ====================================================================== */
+      function renderFacilities() {
+        let facs = FACILITIES.filter(
+          (f) => STATE.region === "all" || f.district === STATE.region,
+        );
+        if (STATE.search)
+          facs = facs.filter((f) =>
+            f.name.toLowerCase().includes(STATE.search),
+          );
+
+        document.getElementById("pageContent").innerHTML = `
+    <div class="card">
+      <div class="card-head"><h3>All Facilities</h3><div class="hint">${facs.length} facilities</div></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>Facility</th><th>Type</th><th>District</th><th>Medicines</th><th>Critical</th><th>Surplus items</th><th>Overall risk</th></tr></thead>
+        <tbody>
+        ${facs
+          .map((f) => {
+            const recs = facilityRecords(f.id);
+            const crit = recs.filter((r) => r.status === "critical").length;
+            const surplus = recs.filter((r) => r.transferable > 0).length;
+            return `<tr class="clickable" data-fac="${f.id}">
+            <td class="cell-strong">${f.name}</td>
+            <td>${KIND_LABEL[f.kind]}</td>
+            <td>${f.districtName}</td>
+            <td>${recs.length}</td>
+            <td>${crit}</td>
+            <td>${surplus}</td>
+            <td>${pillHtml(worstStatus(f.id))}</td>
+          </tr>`;
+          })
+          .join("")}
+        </tbody>
+      </table></div>
+    </div>
+  `;
+        document
+          .querySelectorAll("[data-fac]")
+          .forEach(
+            (el) => (el.onclick = () => openFacilityDrawer(el.dataset.fac)),
+          );
+      }
+
+      /* ======================================================================
+   PAGE: MEDICINES
+   ====================================================================== */
+      function renderMedicines() {
+        document.getElementById("pageContent").innerHTML = `
+    <div class="grid g-1-2" style="align-items:start;">
+      <div class="card">
+        <div class="card-head"><h3>Medicines</h3></div>
+        ${MEDICINES.map((m) => {
+          const recs = DERIVED.filter((r) => r.medicineId === m.id);
+          const highRisk = recs.filter(
+            (r) => r.status === "critical" || r.status === "high",
+          ).length;
+          const active = m.id === STATE.selectedMedicineId;
+          return `<div class="fac-list-item clickable" data-med="${m.id}" style="padding:11px 6px; border-bottom:1px solid var(--border-soft); ${active ? "background:var(--blue-xlight);" : ""} cursor:pointer;">
+            <div style="display:flex; justify-content:space-between;"><b style="font-size:13px;">${m.name}</b>${highRisk ? pillHtml("high", highRisk + " at risk") : pillHtml("low", "stable")}</div>
+            <div style="font-size:11.5px;color:var(--gray);">${m.category} · ${recs.length} facilities stocked</div>
+          </div>`;
+        }).join("")}
+      </div>
+      <div id="medDetail"></div>
+    </div>
+  `;
+        document.querySelectorAll("[data-med]").forEach(
+          (el) =>
+            (el.onclick = () => {
+              STATE.selectedMedicineId = el.dataset.med;
+              renderMedicines();
+            }),
+        );
+        renderMedicineDetail(STATE.selectedMedicineId);
+      }
+      function renderMedicineDetail(medId) {
+        const m = MEDICINES.find((x) => x.id === medId);
+        const recs = DERIVED.filter((r) => r.medicineId === medId);
+        const totalStock = recs.reduce((s, r) => s + r.stock, 0);
+        const avgDemand =
+          recs.reduce((s, r) => s + r.recentConsumption, 0) / recs.length;
+        const regionalDays = +(
+          totalStock / recs.reduce((s, r) => s + r.recentConsumption, 0)
+        ).toFixed(1);
+        const highRisk = recs
+          .filter((r) => r.status === "critical" || r.status === "high")
+          .sort((a, b) => a.daysToStockout - b.daysToStockout);
+        const surplusLocs = recs
+          .filter((r) => r.transferable > 0)
+          .sort((a, b) => b.transferable - a.transferable);
+        const trend = [
+          0.9,
+          0.95,
+          1,
+          0.97,
+          0.92,
+          0.88,
+          0.85,
+          0.8,
+          0.78,
+          0.74,
+          0.7,
+          regionalDays > 0 ? 1 : 0.6,
+        ].map((f) => Math.max(0.2, f * (totalStock / recs.length)));
+
+        document.getElementById("medDetail").innerHTML = `
+    <div class="card">
+      <div class="card-head"><h3>${m.name}</h3><div class="hint">${m.category} · Criticality: ${m.criticality}</div></div>
+      <div class="grid g4" style="margin-bottom:16px;">
+        <div class="dd-stat" style="background:var(--blue-xlight);border:1px solid var(--border);border-radius:10px;padding:12px;"><div class="cell-sub">Total regional stock</div><div style="font-size:17px;font-weight:800;">${fmtNum(totalStock, 0)}</div></div>
+        <div class="dd-stat" style="background:var(--blue-xlight);border:1px solid var(--border);border-radius:10px;padding:12px;"><div class="cell-sub">Facilities stocked</div><div style="font-size:17px;font-weight:800;">${recs.length}</div></div>
+        <div class="dd-stat" style="background:var(--blue-xlight);border:1px solid var(--border);border-radius:10px;padding:12px;"><div class="cell-sub">Avg daily demand</div><div style="font-size:17px;font-weight:800;">${fmtNum(avgDemand)}</div></div>
+        <div class="dd-stat" style="background:var(--blue-xlight);border:1px solid var(--border);border-radius:10px;padding:12px;"><div class="cell-sub">Regional days of stock</div><div style="font-size:17px;font-weight:800;">${fmtNum(regionalDays)}d</div></div>
+      </div>
+      <div class="card-head"><h3 style="font-size:13px;">Regional stock trend (indicative)</h3></div>
+      ${sparkline(trend, "var(--blue)")}
+
+      <div class="section-title">High-risk facilities</div>
+      <div class="table-scroll"><table><thead><tr><th>Facility</th><th>District</th><th>Days left</th><th>Risk</th></tr></thead><tbody>
+      ${highRisk.length ? highRisk.map((r) => `<tr class="clickable" data-fac="${r.facilityId}"><td class="cell-strong">${r.facility.name}</td><td>${r.facility.districtName}</td><td>${fmtNum(r.daysToStockout)}d</td><td>${pillHtml(r.status)}</td></tr>`).join("") : `<tr><td colspan="4" style="text-align:center;color:var(--gray);padding:16px;">No high-risk facilities for this medicine.</td></tr>`}
+      </tbody></table></div>
+
+      <div class="section-title">Surplus locations</div>
+      <div class="table-scroll"><table><thead><tr><th>Facility</th><th>District</th><th>Transferable</th></tr></thead><tbody>
+      ${surplusLocs.length ? surplusLocs.map((r) => `<tr class="clickable" data-fac="${r.facilityId}"><td class="cell-strong">${r.facility.name}</td><td>${r.facility.districtName}</td><td>${fmtNum(r.transferable, 0)} ${m.unit}</td></tr>`).join("") : `<tr><td colspan="3" style="text-align:center;color:var(--gray);padding:16px;">No surplus currently available.</td></tr>`}
+      </tbody></table></div>
+    </div>
+  `;
+        document
+          .querySelectorAll("[data-fac]")
+          .forEach(
+            (el) => (el.onclick = () => openFacilityDrawer(el.dataset.fac)),
+          );
+      }
+
+      /* ======================================================================
+   PAGE: ALERTS
+   ====================================================================== */
+      let alertFilter = "all";
+      function renderAlerts() {
+        let alerts = computeAlerts();
+        if (alertFilter !== "all")
+          alerts = alerts.filter((a) => a.severity === alertFilter);
+        const counts = { critical: 0, high: 0, medium: 0, low: 0 };
+        computeAlerts().forEach((a) => counts[a.severity]++);
+
+        document.getElementById("pageContent").innerHTML = `
+    <div class="grid g4" style="margin-bottom:16px;">
+      ${kpiCard("alert", "#DC2626", counts.critical, "Critical alerts")}
+      ${kpiCard("trend", "#EA580C", counts.high, "High severity")}
+      ${kpiCard("bell", "#D97706", counts.medium, "Medium severity")}
+      ${kpiCard("box", "#16A34A", counts.low, "Informational")}
+    </div>
+    <div class="card">
+      <div class="card-head">
+        <h3>Alert Center</h3>
+        <div class="tb-select"><select id="alertFilterSel">
+          <option value="all">All severities</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+        </select></div>
+      </div>
+      ${
+        alerts
+          .map(
+            (a) => `
+        <div style="padding:13px 0; border-bottom:1px solid var(--border-soft);">
+          <div style="display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:8px;">
+            <div><b style="font-size:13px;">${a.type}</b><span style="color:var(--gray); font-size:12px;"> · ${a.medicine.name}${a.facility ? " · " + a.facility.name : ""}</span></div>
+            <div style="display:flex; align-items:center; gap:8px;">${pillHtml(a.severity)}<span class="cell-sub">${a.ts.toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</span></div>
+          </div>
+          <div style="font-size:12.8px; margin-top:4px;">${a.message} <span style="color:var(--gray);">Confidence: ${a.confidence}%</span></div>
+          <ul class="factor-list" style="margin-top:4px;">${a.factors.map((f) => `<li>${f}</li>`).join("")}</ul>
+          <div style="font-size:12px; color:var(--blue); margin-top:2px; font-weight:600;">${a.action}</div>
+        </div>`,
+          )
+          .join("") ||
+        `<div class="empty-state"><div class="es-title">No alerts</div></div>`
+      }
+    </div>
+  `;
+        document.getElementById("alertFilterSel").value = alertFilter;
+        document.getElementById("alertFilterSel").onchange = (e) => {
+          alertFilter = e.target.value;
+          renderAlerts();
+        };
+      }
+
+      /* ======================================================================
+   PAGE: ANALYTICS
+   ====================================================================== */
+      function renderAnalytics() {
+        const byStatus = { critical: 0, high: 0, medium: 0, low: 0 };
+        DERIVED.forEach((r) => byStatus[r.status]++);
+        const avgDays = +(
+          DERIVED.reduce((s, r) => s + r.daysToStockout, 0) / DERIVED.length
+        ).toFixed(1);
+        const stockoutRate =
+          Math.round(
+            (DERIVED.filter((r) => r.status === "critical").length /
+              DERIVED.length) *
+              1000,
+          ) / 10;
+        const avgVol =
+          DERIVED.reduce((s, r) => s + r.volatility, 0) / DERIVED.length;
+        const backtestAcc = Math.round((1 - avgVol) * 100 * 0.9);
+
+        document.getElementById("pageContent").innerHTML = `
+    <div class="grid g4" style="margin-bottom:16px;">
+      ${kpiCard("trend", "#1976D2", avgDays + "d", "Average days of stock")}
+      ${kpiCard("alert", "#DC2626", stockoutRate + "%", "Stockout rate (critical)")}
+      ${kpiCard("exchange", "#16A34A", computeRecommendations().filter((r) => r.type === "redistribution").length, "Redistribution actions available")}
+      ${kpiCard("box", "#D97706", computeRecommendations().filter((r) => r.type === "procurement").length, "Emergency procurement events")}
+    </div>
+    <div class="grid g2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-head"><h3>Facility risk distribution</h3></div>
+        ${miniBar([byStatus.low, byStatus.medium, byStatus.high, byStatus.critical], ["Healthy", "Medium", "High", "Critical"], ["#16A34A", "#D97706", "#EA580C", "#DC2626"])}
+      </div>
+      <div class="card">
+        <div class="card-head"><h3>Regional shortage clusters over time</h3><div class="hint">Indicative trend</div></div>
+        ${sparkline([2, 2, 3, 3, 4, 3, 4, 5, 4, 5, computeClusters().filter((c) => c.count >= 2).length + 3, computeClusters().filter((c) => c.count >= 2).length], "var(--critical)")}
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-head"><h3>Simulated Intervention Impact</h3></div>
+      ${renderImpactBlock()}
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>Forecast accuracy</h3></div>
+      <div style="font-size:26px; font-weight:800;">${backtestAcc}%</div>
+      <div class="disclaimer" style="margin-top:8px;">Backtest estimate — derived from consumption-pattern volatility in the seeded dataset, not a measured real-world accuracy figure.</div>
+    </div>
+  `;
+      }
+
+      /* ======================================================================
+   PAGE: SETTINGS
+   ====================================================================== */
+      function renderSettings() {
+        document.getElementById("pageContent").innerHTML = `
+    <div class="card" style="max-width:820px;">
+      <div class="card-head"><h3>Settings</h3><div class="hint">Adjust thresholds — recommendations and risk levels recompute immediately</div></div>
+      <div class="settings-grid">
+        <div class="setting-row"><label>Critical threshold (days)</label><input type="number" id="stCritical" value="${SETTINGS.criticalDays}" min="1" max="5"><div class="desc">Days of stock at or below this are Critical.</div></div>
+        <div class="setting-row"><label>High threshold (days)</label><input type="number" id="stHigh" value="${SETTINGS.highDays}" min="2" max="10"><div class="desc">Days of stock at or below this are High risk.</div></div>
+        <div class="setting-row"><label>Medium threshold (days)</label><input type="number" id="stMedium" value="${SETTINGS.mediumDays}" min="5" max="20"><div class="desc">Above this is considered Healthy.</div></div>
+        <div class="setting-row"><label>Forecast horizon (days)</label><input type="number" id="stHorizon" value="${SETTINGS.forecastHorizon}" min="14" max="60"></div>
+        <div class="setting-row"><label>Maximum redistribution radius (km)</label><input type="number" id="stRadius" value="${SETTINGS.transportRadiusKm}" min="20" max="300"></div>
+        <div class="setting-row"><label>Safety stock multiplier</label><input type="number" id="stSafety" value="${SETTINGS.safetyMultiplier}" step="0.1" min="0.5" max="2"><div class="desc">Scales each medicine's configured safety-stock days.</div></div>
+      </div>
+      <button class="btn-sm solid" id="stSave">Apply settings</button>
+    </div>
+  `;
+        document.getElementById("stSave").onclick = () => {
+          SETTINGS.criticalDays = +document.getElementById("stCritical").value;
+          SETTINGS.highDays = +document.getElementById("stHigh").value;
+          SETTINGS.mediumDays = +document.getElementById("stMedium").value;
+          SETTINGS.forecastHorizon =
+            +document.getElementById("stHorizon").value;
+          SETTINGS.transportRadiusKm =
+            +document.getElementById("stRadius").value;
+          SETTINGS.safetyMultiplier =
+            +document.getElementById("stSafety").value;
+          recompute();
+          toast(
+            "Settings applied — risk levels and recommendations recomputed.",
+          );
+          renderSettings();
+        };
+      }
+
+      /* ======================================================================
+   PAGE: HELP
+   ====================================================================== */
+      function renderHelp() {
+        document.getElementById("pageContent").innerHTML = `
+    <div class="card" style="max-width:820px;">
+      <div class="card-head"><h3>Methodology</h3></div>
+      <div class="help-block"><h4>Detect</h4><p>MEDISYNC continuously compares current stock against recent daily consumption at every tracked facility-medicine pair, alongside replenishment lead time and incoming shipment status, to flag anything drawing down faster than it is being restocked.</p></div>
+      <div class="help-block"><h4>Forecast</h4><p>For each facility-medicine pair, a rolling consumption rate projects stock forward across the configured horizon. A confidence score reflects recent demand volatility and shipment reliability — forecasts are estimates, never presented as certainty.</p></div>
+      <div class="help-block"><h4>Propagate</h4><p>Facilities are compared geographically and temporally: when two or more facilities in the same district show the same medicine simultaneously declining, MEDISYNC labels it a potential regional shortage cluster rather than an isolated event.</p></div>
+      <div class="help-block"><h4>Intervene</h4><p>Facilities with surplus above their safety stock are matched against at-risk facilities using urgency, surplus availability, distance and medicine criticality, producing a ranked, explained recommendation — redistribution first, emergency procurement only when no feasible donor exists in range.</p></div>
+      <div class="help-block"><h4>Verify</h4><p>The Simulator lets you test an intervention before committing to it, showing before/after stock, days remaining, risk level and forecasted stockout date, with donor safety stock checked automatically.</p></div>
+      <div class="disclaimer" style="margin-top:8px;">MEDISYNC provides decision-support intelligence based on available inventory, consumption and logistics data. Forecasts represent estimates and should be reviewed by authorized operational personnel. This is a supply-chain intelligence system — it does not provide clinical, diagnostic or treatment guidance.</div>
+    </div>
+  `;
+      }
+
+      /* ======================================================================
+   LOGIN NETWORK VISUAL
+   ====================================================================== */
+      function renderLoginNetwork() {
+        const pts = [
+          [30, 40],
+          [110, 20],
+          [190, 60],
+          [270, 30],
+          [350, 55],
+          [70, 100],
+          [150, 120],
+          [230, 105],
+          [310, 130],
+          [400, 90],
+          [50, 140],
+          [250, 145],
+        ];
+        let lines = "",
+          nodes = "";
+        const rand = mulberry32(77);
+        for (let i = 0; i < pts.length; i++) {
+          for (let j = i + 1; j < pts.length; j++) {
+            if (rand() < 0.14)
+              lines += `<line x1="${pts[i][0]}" y1="${pts[i][1]}" x2="${pts[j][0]}" y2="${pts[j][1]}" stroke="rgba(255,255,255,0.16)" stroke-width="1"/>`;
+          }
+        }
+        pts.forEach((p, i) => {
+          const risky = i % 5 === 0;
+          nodes += `<circle cx="${p[0]}" cy="${p[1]}" r="${risky ? 5 : 3.4}" fill="${risky ? "#FF8A70" : "#7FB8FF"}" opacity="0.9"/>`;
+        });
+        document.getElementById("loginNetSvg").innerHTML = lines + nodes;
+      }
+      renderLoginNetwork();
+
+      /* ======================================================================
+   INIT / LOGIN FLOW
+   ====================================================================== */
+      function enterApp() {
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("app").classList.add("active");
+        renderSidebar();
+        renderTopControls();
+        navigate("overview");
+      }
+      document.getElementById("demoBtn").onclick = enterApp;
+      document.getElementById("signInBtn").onclick = (e) => {
+        e.preventDefault();
+        enterApp();
+      };
+    </script>
+  </body>
+</html>
